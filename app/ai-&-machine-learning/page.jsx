@@ -10,29 +10,30 @@ import {
   Microchip,
   Activity
 } from 'lucide-react';
+import PostFeed from '@/components/PostFeed';
 
 export default function AIPage() {
-  const signals = [
+  const news = [
     {
-      title: "Agentic Reasoning Models",
+      status: "Strong",
       category: "LLM Evolution",
-      signal: "Strong",
+      title: "Agentic Reasoning Models",
       description: "Shift from passive completion to active reasoning chains. Models are now capable of multi-step planning and self-correction without human intervention.",
       impact: "High",
       icon: <BrainCircuit className="w-6 h-6" />
     },
     {
-      title: "Edge Neural Processing",
+      status: "Rising",
       category: "Hardware",
-      signal: "Rising",
+      title: "Edge Neural Processing",
       description: "Neural engines are moving from the cloud to the silicon on your wrist and pocket. Privacy-first, zero-latency intelligence is becoming the standard.",
       impact: "Transformative",
       icon: <Microchip className="w-6 h-6" />
     },
     {
-      title: "Neural Architecture Search",
+      status: "Stable",
       category: "Infrastructure",
-      signal: "Stable",
+      title: "Neural Architecture Search",
       description: "Automating the design of neural networks themselves. AI is now optimizing its own code structures to run 40% more efficiently on existing chips.",
       impact: "Medium",
       icon: <Network className="w-6 h-6" />
@@ -77,7 +78,7 @@ export default function AIPage() {
             <div className="flex flex-wrap gap-4">
               <span className="px-4 py-2 bg-white/5 rounded-full border border-white/10 text-xs font-bold text-cyan-400 flex items-center gap-2">
                 <Activity size={14} />
-                REAL-TIME SIGNAL: ACTIVE
+                REAL-TIME NEWS: ACTIVE
               </span>
               <span className="px-4 py-2 bg-white/5 rounded-full border border-white/10 text-xs font-bold text-slate-300 uppercase tracking-widest">
                 Last Audit: 2h ago
@@ -102,44 +103,47 @@ export default function AIPage() {
           </div>
         </section>
 
-        {/* Signals Feed */}
-        <h3 className="text-xs font-black uppercase tracking-[0.5em] text-slate-600 mb-10 pl-2">Latest Sector Signals</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {signals.map((signal, i) => (
+        {/* News Feed */}
+        <h3 className="text-xs font-black uppercase tracking-[0.5em] text-slate-600 mb-10 pl-2">Sector Updates</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
+          {news.map((item, i) => (
             <div key={i} className="p-8 bg-white/5 border border-white/10 rounded-3xl hover:border-cyan-500/30 transition-all group">
               <div className="flex justify-between items-start mb-6">
                 <div className="p-3 bg-cyan-500/10 rounded-2xl text-cyan-400 group-hover:scale-110 transition-transform">
-                  {signal.icon}
+                  {item.icon}
                 </div>
                 <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${
-                  signal.signal === 'Strong' ? 'bg-green-500/20 text-green-400' :
-                  signal.signal === 'Rising' ? 'bg-cyan-500/20 text-cyan-400' :
+                  item.status === 'Strong' ? 'bg-green-500/20 text-green-400' :
+                  item.status === 'Rising' ? 'bg-cyan-500/20 text-cyan-400' :
                   'bg-blue-500/20 text-blue-400'
                 }`}>
-                  {signal.signal} Signal
+                  {item.status} Momentum
                 </span>
               </div>
-              <h4 className="text-white font-bold text-xl mb-2 group-hover:text-cyan-400 transition-colors">{signal.title}</h4>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-4">{signal.category}</p>
+              <h4 className="text-white font-bold text-xl mb-2 group-hover:text-cyan-400 transition-colors uppercase italic">{item.title}</h4>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-4">{item.category}</p>
               <p className="text-sm leading-relaxed text-slate-400 mb-6">
-                {signal.description}
+                {item.description}
               </p>
               <div className="pt-6 border-t border-white/5 flex justify-between items-center">
                 <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Strategic Impact</span>
                 <span className="text-[10px] font-black text-white uppercase tracking-widest bg-white/10 px-2 py-1 rounded">
-                  {signal.impact}
+                  {item.impact}
                 </span>
               </div>
             </div>
           ))}
         </div>
 
+        {/* Community Posts */}
+        <PostFeed activeCategory="AI & Machine Learning" />
+
         {/* Bottom CTA */}
         <div className="mt-24 p-12 bg-white/5 border border-white/10 rounded-[3rem] text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5" />
           <h3 className="text-3xl font-black text-white mb-6 uppercase relative z-10 italic">Decipher the next neural shift.</h3>
           <p className="text-slate-400 max-w-xl mx-auto mb-10 relative z-10">
-            Join 40,000+ engineers and strategists getting our weekly neural audit. No noise. Just the signals that matter.
+            Join 40,000+ engineers and strategists getting our weekly neural audit. No noise. Just the news that matters.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
             <input 
@@ -148,7 +152,7 @@ export default function AIPage() {
               className="px-6 py-4 bg-[#000d14] border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition-all w-full sm:w-80"
             />
             <button className="px-8 py-4 bg-cyan-500 text-[#000d14] font-black rounded-xl hover:bg-cyan-400 transition-all">
-              SUBSCRIBE TO SIGNALS
+              SUBSCRIBE TO NEWS
             </button>
           </div>
         </div>

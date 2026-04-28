@@ -81,11 +81,10 @@ const Footer = () => {
 
           {/* Newsletter Section */}
           <div className="space-y-8">
-            <h4 className="text-white font-black text-xs uppercase tracking-[0.3em] flex items-center gap-2">
-              <span className="w-4 h-[1px] bg-cyan-500" />
-              Weekly Signals
-            </h4>
-            <p className="text-slate-400 text-sm font-light">Get high-fidelity tech signals delivered directly to your terminal.</p>
+            <h3 className="text-white font-black text-xs uppercase tracking-[0.4em] mb-4">
+              Weekly News
+            </h3>
+            <p className="text-slate-400 text-sm font-light">Get high-fidelity tech updates delivered directly to your terminal.</p>
             <form className="relative group" onSubmit={(e) => e.preventDefault()}>
               <input
                 type="email"

@@ -1,63 +1,115 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Zap, Globe, Shield, TrendingUp, Cpu } from 'lucide-react';
+import PostFeed from '@/components/PostFeed';
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[#000d14]">
+    <div className="relative min-h-screen bg-[#000d14]">
       
-      {/* Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0 opacity-40 mix-blend-screen"
-      >
-        <source src="/bgvideo.mp4" type="video/mp4" />
-        <img src="/bgimage.png" alt="Background" className="w-full h-full object-cover opacity-50" />
-      </video>
+      {/* Hero Section with Cinematic Background */}
+      <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
+        {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0 opacity-40 mix-blend-screen"
+        >
+          <source src="/bgvideo.mp4" type="video/mp4" />
+          <img src="/bgimage.png" alt="Background" className="w-full h-full object-cover opacity-50" />
+        </video>
 
-      {/* Dynamic Overlay for Depth & Readability */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-[#000d14] via-[#001b2b]/40 to-[#000d14] z-10" />
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 z-11 pointer-events-none" />
-      
-      {/* Content Layer */}
-      <main className="relative z-20 container mx-auto px-6 pt-32 pb-24 flex flex-col items-center text-center">
-        
-        {/* Hero Title */}
-        <h1 className="max-w-4xl text-4xl md:text-6xl lg:text-8xl font-black text-white tracking-tight leading-none mb-12 uppercase italic">
-          Welcome to <br />
-          <span className="relative inline-block">
-            <span className="absolute -inset-1 bg-cyan-500/20 blur-2xl rounded-full" />
-            <span className="relative bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(6,182,212,0.3)] pr-2">
-              Macro-Shift
-            </span>
-          </span>
-        </h1>
+        {/* Dynamic Overlay for Depth & Readability */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#000d14] via-[#001b2b]/40 to-[#000d14] z-10" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 z-11 pointer-events-none" />
 
-        {/* Sophisticated Write-up */}
-        <div className="max-w-3xl space-y-8 text-lg md:text-xl text-slate-300 leading-relaxed font-light drop-shadow-lg">
-          <p className="animate-fade-in-up [animation-delay:200ms]">
-            In an era defined by rapid technological displacement, staying informed is no longer enough. 
-            The difference between a market leader and a legacy organization lies in the ability to 
-            distinguish between, real and hype. 
-          </p>
-          <p className="animate-fade-in-up [animation-delay:400ms] text-slate-400 border-l-2 border-cyan-500/30 pl-6 text-left italic">
-            <span className="text-white font-bold not-italic">Macro-Shift</span> was engineered to be your strategic vantage point. 
-            We don't just track tools; we analyze the tectonic movements within AI, decentralized infrastructure, 
-            and emerging hardware ecosystems. Our platform serves as a high-fidelity intelligence layer, stripping 
-            away the hype to reveal the underlying data structures that drive the next economic cycle.
-          </p>
+        {/* Hero Content */}
+        <main className="relative z-20 container mx-auto px-6 text-center flex flex-col items-center">
+          <div className="mb-8 animate-fade-in-up">
+            <h1 className="text-4xl md:text-6xl lg:text-8xl font-black text-white tracking-tight uppercase italic leading-none pr-2">
+              Welcome to <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                Macro-Shift
+              </span>
+            </h1>
+          </div>
 
-          <p className="animate-fade-in-up [animation-delay:600ms] text-white/90 font-medium">
-            Whether you are optimizing a global communications network or deploying the next generation of 
-            interactive web experiences, Macro-Shift provides the predictive clarity required to navigate 
-            complexity. <span className="text-cyan-400">We provide the maps; you direct the shift.</span>
-          </p>
+          <div className="max-w-3xl space-y-8 animate-fade-in-up delay-200">
+            <p className="text-lg md:text-xl text-slate-300 leading-relaxed font-light">
+              In an era defined by rapid technological displacement, staying informed is no longer enough. 
+              The difference between a market leader and a legacy organization lies in the ability to 
+              distinguish between <span className="text-cyan-400 font-bold">"noise"</span> and 
+              <span className="text-blue-400 font-bold"> "strategic news."</span>
+            </p>
+            
+            <p className="text-sm md:text-base text-slate-400 leading-relaxed">
+              Macro-Shift was engineered to be your strategic vantage point. We don't just track tools; we analyze the 
+              tectonic movements within AI, decentralized infrastructure, and emerging hardware ecosystems. Our platform 
+              serves as a high-fidelity intelligence layer, stripping away the hype to reveal the underlying data 
+              structures that drive the next economic cycle.
+            </p>
+            
+            <p className="text-xs md:text-sm text-slate-500 italic">
+              Whether you are optimizing a global communications network or deploying the next generation of 
+              interactive web experiences, Macro-Shift provides the predictive clarity required to navigate 
+              complexity. <span className="text-cyan-400">We provide the maps; you direct the shift.</span>
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8">
+               <Link href="/get-started">
+                <button className="px-10 py-4 bg-cyan-500 text-[#000d14] font-black rounded-xl hover:bg-cyan-400 hover:-translate-y-1 transition-all shadow-[0_15px_40px_rgba(6,182,212,0.4)] flex items-center gap-2 group">
+                  GET STARTED
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </Link>
+              <Link href="/ai-&-machine-learning">
+                <button className="px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-all backdrop-blur-md">
+                  VIEW LATEST NEWS
+                </button>
+              </Link>
+            </div>
+          </div>
+        </main>
+      </section>
+
+      {/* Feature Highlights Section (Solid Theme Color) */}
+      <section className="bg-[#000d14] py-24 border-y border-white/5">
+        <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
+          <div className="space-y-4 p-8 bg-white/5 rounded-3xl border border-white/10 hover:border-cyan-500/30 transition-all group">
+            <div className="w-12 h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
+              <Zap size={24} />
+            </div>
+            <h3 className="text-white font-black text-lg uppercase tracking-widest italic">Rapid Insights</h3>
+            <p className="text-slate-400 text-sm leading-relaxed font-light">
+              Real-time analysis of market-defining tech breakthroughs as they happen.
+            </p>
+          </div>
+          <div className="space-y-4 p-8 bg-white/5 rounded-3xl border border-white/10 hover:border-blue-500/30 transition-all group">
+            <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+              <Globe size={24} />
+            </div>
+            <h3 className="text-white font-black text-lg uppercase tracking-widest italic">Global Trends</h3>
+            <p className="text-slate-400 text-sm leading-relaxed font-light">
+              Connecting dots across international tech corridors to map your strategic path.
+            </p>
+          </div>
+          <div className="space-y-4 p-8 bg-white/5 rounded-3xl border border-white/10 hover:border-indigo-500/30 transition-all group">
+            <div className="w-12 h-12 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+              <Shield size={24} />
+            </div>
+            <h3 className="text-white font-black text-lg uppercase tracking-widest italic">Verified News</h3>
+            <p className="text-slate-400 text-sm leading-relaxed font-light">
+              Deep-dive reporting backed by industry veterans and verified data points.
+            </p>
+          </div>
         </div>
+      </section>
 
-      </main>
+      {/* Post Feed (Solid Theme Color) */}
+      <PostFeed />
+
     </div>
   );
 }

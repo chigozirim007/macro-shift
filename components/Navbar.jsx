@@ -97,29 +97,29 @@ const Navbar = () => {
 
             {/* Mobile Drawer with Advanced Blur */}
             {isOpen && (
-                <div className="lg:hidden fixed inset-0 z-[60] bg-[#000d14]/98 backdrop-blur-3xl flex flex-col p-8 overflow-y-auto animate-in fade-in slide-in-from-top duration-500">
+                <div className="lg:hidden fixed inset-0 z-[60] bg-[#000d14]/98 backdrop-blur-3xl flex flex-col p-6 overflow-y-auto animate-in fade-in slide-in-from-top duration-500">
                     
                     {/* Header in Drawer */}
-                    <div className="flex justify-between items-center mb-16">
+                    <div className="flex justify-between items-center mb-10">
                         <div className="flex flex-col leading-none">
-                            <span className="text-xl font-black tracking-tighter text-white">
+                            <span className="text-lg font-black tracking-tighter text-white">
                                 MACRO<span className="text-cyan-400">SHIFT</span>
                             </span>
                         </div>
                         <button onClick={() => setIsOpen(false)} className="text-white p-2 hover:bg-white/5 rounded-full transition-colors">
-                            <X className="w-8 h-8" />
+                            <X className="w-6 h-6" />
                         </button>
                     </div>
 
                     {/* Navigation Links */}
-                    <div className="flex flex-col space-y-6 mb-16">
+                    <div className="flex flex-col space-y-4 mb-10">
                         {['AI & Machine Learning', 'Trends', 'Cloud & Infrastructure', 'Software Development', 'Emerging Hardware', 'Contact Us'].map((item, index) => (
                             <Link 
                                 key={item} 
                                 href={`/${item.toLowerCase().replace(/ /g, '-')}`} 
-                                className="text-2xl font-black text-slate-300 hover:text-cyan-400 transition-all transform hover:translate-x-2"
+                                className="text-lg font-black text-slate-300 hover:text-cyan-400 transition-all transform hover:translate-x-2"
                                 onClick={() => setIsOpen(false)}
-                                style={{ animationDelay: `${index * 50}ms` }}
+                                style={{ animationDelay: `${index * 40}ms` }}
                             >
                                 {item}
                             </Link>
@@ -127,23 +127,23 @@ const Navbar = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-col space-y-4 mt-auto">
+                    <div className="flex flex-col space-y-3 mt-auto">
                         <Link href="/get-started" onClick={() => setIsOpen(false)}>
-                            <button className="w-full py-4 bg-cyan-500 text-[#000d14] rounded-2xl font-black text-lg shadow-[0_10px_30px_rgba(6,182,212,0.3)]">
+                            <button className="w-full py-3 bg-cyan-500 text-[#000d14] rounded-xl font-black text-base shadow-[0_8px_20px_rgba(6,182,212,0.25)]">
                                 GET STARTED
                             </button>
                         </Link>
                         <Link href="/signin" onClick={() => setIsOpen(false)}>
-                            <button className="w-full py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3">
+                            <button className="w-full py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black text-base flex items-center justify-center gap-3">
                                 SIGN IN
-                                <UserRound className="w-5 h-5 text-cyan-400" />
+                                <UserRound className="w-4 h-4 text-cyan-400" />
                             </button>
                         </Link>
                     </div>
 
                     {/* Footer in Drawer */}
-                    <div className="mt-12 pt-8 border-t border-white/5">
-                        <p className="text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase">
+                    <div className="mt-8 pt-6 border-t border-white/5">
+                        <p className="text-[9px] font-black tracking-[0.2em] text-slate-500 uppercase">
                             © {new Date().getFullYear()} Macro-Shift System
                         </p>
                     </div>
