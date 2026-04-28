@@ -18,8 +18,8 @@ const Navbar = () => {
 
     return (
         <nav className={`fixed top-0 w-full z-50 transition-all duration-700 ease-in-out ${scrolled
-            ? "bg-[#001b2b]/80 backdrop-blur-2xl py-3 border-b border-cyan-500/20 shadow-[0_10px_40px_rgba(0,0,0,0.3)]"
-            : "bg-[#00334e] py-6 border-b border-transparent"
+            ? "bg-[#000d14]/95 backdrop-blur-3xl py-3 border-b border-cyan-500/30 shadow-[0_10px_50px_rgba(0,0,0,0.5)]"
+            : "bg-gradient-to-b from-[#000d14]/90 via-[#000d14]/40 to-transparent py-5 border-b border-white/5"
             }`}>
             <div className="mx-auto px-4 sm:px-6 lg:px-10">
                 <div className="flex justify-between items-center h-16">
@@ -95,25 +95,57 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* Mobile Drawer with Blur */}
+            {/* Mobile Drawer with Advanced Blur */}
             {isOpen && (
-                <div className="lg:hidden bg-[#001b2b]/95 backdrop-blur-3xl fixed inset-0 z-40 flex flex-col justify-center items-center space-y-8 animate-in fade-in zoom-in duration-300">
-                    <button onClick={() => setIsOpen(false)} className="absolute top-10 right-10 text-white"><X className="w-10 h-10" /></button>
-                    {['AI & Machine Learning', 'Trends', 'Cloud & Infrastructure', 'Software Development', 'Emerging Hardware', 'Contact Us'].map((item) => (
-                        <Link key={item} href="#" className="text-3xl font-black text-white hover:text-cyan-400 transition-colors" onClick={() => setIsOpen(false)}>
-                            {item}
-                        </Link>
-                    ))}
-                    <div className="flex items-center justify-center space-y-[1.2px] space-x-10 mt-10">
-                        <button className="bg-cyan-500 text-[#001b2b] rounded-full font-black text-xl w-auto p-4">
-                            <Link href="/get-started">GET STARTED</Link>
+                <div className="lg:hidden fixed inset-0 z-[60] bg-[#000d14]/98 backdrop-blur-3xl flex flex-col p-8 overflow-y-auto animate-in fade-in slide-in-from-top duration-500">
+                    
+                    {/* Header in Drawer */}
+                    <div className="flex justify-between items-center mb-16">
+                        <div className="flex flex-col leading-none">
+                            <span className="text-xl font-black tracking-tighter text-white">
+                                MACRO<span className="text-cyan-400">SHIFT</span>
+                            </span>
+                        </div>
+                        <button onClick={() => setIsOpen(false)} className="text-white p-2 hover:bg-white/5 rounded-full transition-colors">
+                            <X className="w-8 h-8" />
                         </button>
-                        <button className="flex items-center font-bold text-slate-300 bg-cyan-500 rounded-full p-4 w-auto">
-                            <Link href="/signin" className="text-[#001b2b] flex items-center gap-2 text-xl">
-                                SIGN IN
-                                <UserRound className="w-4 h-4 text-white text-xl" />
+                    </div>
+
+                    {/* Navigation Links */}
+                    <div className="flex flex-col space-y-6 mb-16">
+                        {['AI & Machine Learning', 'Trends', 'Cloud & Infrastructure', 'Software Development', 'Emerging Hardware', 'Contact Us'].map((item, index) => (
+                            <Link 
+                                key={item} 
+                                href={`/${item.toLowerCase().replace(/ /g, '-')}`} 
+                                className="text-2xl font-black text-slate-300 hover:text-cyan-400 transition-all transform hover:translate-x-2"
+                                onClick={() => setIsOpen(false)}
+                                style={{ animationDelay: `${index * 50}ms` }}
+                            >
+                                {item}
                             </Link>
-                        </button>
+                        ))}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col space-y-4 mt-auto">
+                        <Link href="/get-started" onClick={() => setIsOpen(false)}>
+                            <button className="w-full py-4 bg-cyan-500 text-[#000d14] rounded-2xl font-black text-lg shadow-[0_10px_30px_rgba(6,182,212,0.3)]">
+                                GET STARTED
+                            </button>
+                        </Link>
+                        <Link href="/signin" onClick={() => setIsOpen(false)}>
+                            <button className="w-full py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3">
+                                SIGN IN
+                                <UserRound className="w-5 h-5 text-cyan-400" />
+                            </button>
+                        </Link>
+                    </div>
+
+                    {/* Footer in Drawer */}
+                    <div className="mt-12 pt-8 border-t border-white/5">
+                        <p className="text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase">
+                            © {new Date().getFullYear()} Macro-Shift System
+                        </p>
                     </div>
                 </div>
             )}

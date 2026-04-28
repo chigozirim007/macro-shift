@@ -10,45 +10,50 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-[#001b2b] pt-24 pb-12 overflow-hidden border-t border-white/5">
-      {/* Background Ambient Glow */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          
+    <footer className="relative bg-[#000d14] pt-24 pb-12 overflow-hidden border-t-2 border-cyan-500/10">
+      {/* Background Ambient Glows */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[130px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
+
           {/* Brand Section */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             <Link href="/" className="flex items-center group">
-              <div className="relative w-8 h-8 mr-3 transition-transform duration-500 group-hover:rotate-12">
+              <div className="relative w-10 h-10 mr-4 transition-transform duration-700 group-hover:rotate-[360deg]">
                 <Image src="/logo.png" alt="logo" fill className="object-contain" />
               </div>
               <div className="flex flex-col leading-none">
-                <span className="text-xl font-black tracking-tighter text-white uppercase">
+                <span className="text-2xl font-black tracking-tighter text-white uppercase italic">
                   Macro<span className="text-cyan-400">Shift</span>
                 </span>
+                <span className="text-[8px] uppercase tracking-[0.4em] text-cyan-500/60 font-bold mt-1">Strategic Vantage Point</span>
               </div>
             </Link>
-            <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
-              The strategic intelligence layer for the digital evolution. Deciphering global tech trends to direct your next shift.
+            <p className="text-slate-400 text-sm leading-relaxed max-w-xs font-light">
+              The strategic intelligence layer for the digital evolution. Deciphering tectonic shifts to reveal the underlying data structures of the next economic cycle.
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-5">
               {[FaXTwitter, FaInstagram, FaLinkedin, FaGithub].map((Icon, i) => (
-                <Link key={i} href="#" className="p-2 bg-white/5 rounded-lg border border-white/10 text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-all duration-300">
-                  <Icon size={18} />
+                <Link key={i} href="#" className="p-2.5 bg-white/5 rounded-xl border border-white/10 text-slate-400 hover:text-cyan-400 hover:border-cyan-500/50 hover:-translate-y-1 transition-all duration-300">
+                  <Icon size={20} />
                 </Link>
               ))}
             </div>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h4 className="text-white font-bold text-xs uppercase tracking-[0.2em] mb-6 text-cyan-500/80">Platform</h4>
-            <ul className="space-y-4">
+          <div className="lg:pl-10">
+            <h4 className="text-white font-black text-xs uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
+              <span className="w-4 h-[1px] bg-cyan-500" />
+              Platform
+            </h4>
+            <ul className="space-y-5">
               {['AI & Machine Learning', 'Trends', 'Cloud & Infrastructure', 'Software Development', 'Emerging Hardware'].map((item) => (
                 <li key={item}>
-                  <Link href={`/${item.toLowerCase().replace(/ /g, '-')}`} className="text-slate-400 hover:text-white text-sm transition-colors flex items-center group">
-                    <ArrowRight size={12} className="mr-2 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-cyan-500" />
+                  <Link href={`/${item.toLowerCase().replace(/ /g, '-')}`} className="text-slate-400 hover:text-white text-sm transition-all flex items-center group">
+                    <span className="w-0 h-[1px] bg-cyan-500 mr-0 opacity-0 group-hover:w-4 group-hover:mr-3 group-hover:opacity-100 transition-all" />
                     {item}
                   </Link>
                 </li>
@@ -57,13 +62,16 @@ const Footer = () => {
           </div>
 
           {/* Company Section */}
-          <div>
-            <h4 className="text-white font-bold text-xs uppercase tracking-[0.2em] mb-6 text-cyan-500/80">Company</h4>
-            <ul className="space-y-4">
-              {['About Us', 'Contact', 'Privacy Policy', 'Terms'].map((item) => (
+          <div className="lg:pl-10">
+            <h4 className="text-white font-black text-xs uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
+              <span className="w-4 h-[1px] bg-cyan-500" />
+              Intelligence
+            </h4>
+            <ul className="space-y-5">
+              {['Market Analysis', 'Technical Audits', 'Vantage Points', 'About Macro-Shift'].map((item) => (
                 <li key={item}>
-                  <Link href="#" className="text-slate-400 hover:text-white text-sm transition-colors flex items-center group">
-                    <ArrowRight size={12} className="mr-2 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-cyan-500" />
+                  <Link href="#" className="text-slate-400 hover:text-white text-sm transition-all flex items-center group">
+                    <span className="w-0 h-[1px] bg-cyan-500 mr-0 opacity-0 group-hover:w-4 group-hover:mr-3 group-hover:opacity-100 transition-all" />
                     {item}
                   </Link>
                 </li>
@@ -72,30 +80,42 @@ const Footer = () => {
           </div>
 
           {/* Newsletter Section */}
-          <div className="space-y-6">
-            <h4 className="text-white font-bold text-xs uppercase tracking-[0.2em] text-cyan-500/80">Weekly Signals</h4>
-            <p className="text-slate-400 text-sm">Get the most critical tech shifts delivered to your inbox.</p>
+          <div className="space-y-8">
+            <h4 className="text-white font-black text-xs uppercase tracking-[0.3em] flex items-center gap-2">
+              <span className="w-4 h-[1px] bg-cyan-500" />
+              Weekly Signals
+            </h4>
+            <p className="text-slate-400 text-sm font-light">Get high-fidelity tech signals delivered directly to your terminal.</p>
             <form className="relative group" onSubmit={(e) => e.preventDefault()}>
-              <input 
-                type="email" 
-                placeholder="Email address"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-all"
+              <input
+                type="email"
+                placeholder="terminal@intelligence.com"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 transition-all placeholder:text-slate-600"
               />
-              <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-cyan-500 text-[#001b2b] rounded-lg hover:scale-105 transition-transform">
-                <ArrowRight size={18} />
+              <button type="submit" className="absolute right-2.5 top-1/2 -translate-y-1/2 p-2 bg-cyan-500 text-[#001b2b] rounded-xl hover:bg-cyan-400 hover:scale-105 transition-all shadow-[0_0_20px_rgba(6,182,212,0.2)]">
+                <ArrowRight size={20} strokeWidth={3} />
               </button>
             </form>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-slate-500 text-[10px] tracking-widest uppercase font-bold">
-            © {currentYear} MACROSHIFT. ALL RIGHTS RESERVED.
-          </p>
-          <div className="flex items-center gap-6">
-            <Link href="mailto:support@macroshift.com" className="flex items-center gap-2 text-[10px] font-bold text-slate-400 hover:text-cyan-400 transition-colors tracking-widest">
-              <Mail size={14} />
+        <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+            <p className="text-slate-500 text-[10px] tracking-[0.3em] uppercase font-black">
+              © {currentYear} MACRO-SHIFT SYSTEM.
+            </p>
+            <div className="flex gap-6 text-[9px] font-bold text-slate-600 uppercase tracking-widest">
+              <Link href="#" className="hover:text-cyan-500 transition-colors">Privacy</Link>
+              <Link href="#" className="hover:text-cyan-500 transition-colors">Terms</Link>
+              <Link href="#" className="hover:text-cyan-500 transition-colors">Cookies</Link>
+            </div>
+          </div>
+          <div className="flex items-center gap-8">
+            <Link href="mailto:support@macroshift.com" className="flex items-center gap-3 text-[10px] font-black text-slate-400 hover:text-cyan-400 transition-all tracking-[0.2em] group">
+              <div className="p-2 bg-white/5 rounded-lg group-hover:bg-cyan-500/10 transition-colors">
+                <Mail size={14} className="text-cyan-500" />
+              </div>
               SUPPORT@MACROSHIFT.COM
             </Link>
           </div>
