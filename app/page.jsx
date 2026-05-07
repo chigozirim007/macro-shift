@@ -2,13 +2,20 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Zap, Globe, Shield, TrendingUp, Cpu } from 'lucide-react';
 import PostFeed from '@/components/PostFeed';
+import { auth } from "@/auth";
+import AuthenticatedHome from '@/components/AuthenticatedHome';
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+
+  if (session) {
+    return <AuthenticatedHome session={session} />;
+  }
+
   return (
     <div className="relative min-h-screen bg-[#000d14]">
-      
       {/* Hero Section with Cinematic Background */}
-      <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen md:h-screen py-32 md:py-0 flex flex-col items-center justify-center overflow-hidden">
         {/* Background Video */}
         <video
           autoPlay
@@ -28,7 +35,7 @@ export default function Home() {
         {/* Hero Content */}
         <main className="relative z-20 container mx-auto px-6 text-center flex flex-col items-center">
           <div className="mb-8 animate-fade-in-up">
-            <h1 className="text-4xl md:text-6xl lg:text-8xl font-black text-white tracking-tight uppercase italic leading-none pr-2">
+            <h1 className="text-3xl md:text-6xl lg:text-8xl font-black text-white tracking-tight uppercase italic leading-none pr-2">
               Welcome to <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
                 Macro-Shift
@@ -37,7 +44,7 @@ export default function Home() {
           </div>
 
           <div className="max-w-3xl space-y-8 animate-fade-in-up delay-200">
-            <p className="text-lg md:text-xl text-slate-300 leading-relaxed font-light">
+            <p className="text-base md:text-xl text-slate-300 leading-relaxed font-light">
               In an era defined by rapid technological displacement, staying informed is no longer enough. 
               The difference between a market leader and a legacy organization lies in the ability to 
               distinguish between <span className="text-cyan-400 font-bold">"noise"</span> and 
@@ -57,15 +64,15 @@ export default function Home() {
               complexity. <span className="text-cyan-400">We provide the maps; you direct the shift.</span>
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8">
-               <Link href="/get-started">
-                <button className="px-10 py-4 bg-cyan-500 text-[#000d14] font-black rounded-xl hover:bg-cyan-400 hover:-translate-y-1 transition-all shadow-[0_15px_40px_rgba(6,182,212,0.4)] flex items-center gap-2 group">
-                  GET STARTED
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 pt-8">
+               <Link href="/get-started" className="w-full sm:w-auto">
+                <button className="w-full px-10 py-4 bg-cyan-500 text-[#000d14] font-black rounded-xl hover:bg-cyan-400 hover:-translate-y-1 transition-all shadow-[0_15px_40px_rgba(6,182,212,0.4)] flex items-center justify-center gap-2 group text-sm md:text-base">
+                   GET STARTED
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
               </Link>
-              <Link href="/ai-&-machine-learning">
-                <button className="px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-all backdrop-blur-md">
+              <Link href="/ai-&-machine-learning" className="w-full sm:w-auto">
+                <button className="w-full px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-all backdrop-blur-md text-sm md:text-base">
                   VIEW LATEST NEWS
                 </button>
               </Link>

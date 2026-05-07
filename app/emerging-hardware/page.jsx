@@ -16,20 +16,20 @@ export default function EmergingHardware() {
               </div>
               <span className="text-xs font-black uppercase tracking-[0.4em] text-slate-500">Silicon & Systems</span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic mb-8">
+            <h1 className="text-3xl md:text-7xl font-black tracking-tighter uppercase italic mb-4 md:mb-8">
               Emerging <span className="text-red-400">Hardware</span>
             </h1>
-            <p className="text-lg text-slate-400 leading-relaxed font-light mb-10">
+            <p className="text-base md:text-lg text-slate-400 leading-relaxed font-light mb-8 md:mb-10">
               Tracing the physical evolution of intelligence. From custom ASICs for neural reasoning to photonics and next-generation energy density, we analyze the hardware making the software possible.
             </p>
             <div className="flex gap-4">
-               <button className="px-8 py-4 bg-red-500 text-[#000d14] font-black rounded-xl hover:bg-red-400 transition-all flex items-center gap-2">
+               <button className="w-full sm:w-auto px-8 py-4 bg-red-500 text-[#000d14] font-black rounded-xl hover:bg-red-400 transition-all flex items-center justify-center gap-2 text-xs md:text-sm">
                 VIEW SILICON ROADMAP <Zap size={18} />
               </button>
             </div>
           </div>
 
-          <div className="lg:w-1/3 p-8 bg-white/5 border border-white/10 rounded-[2rem] flex flex-col justify-center">
+          <div className="lg:w-1/3 p-6 md:p-8 bg-white/5 border border-white/10 rounded-[2rem] flex flex-col justify-center">
             <h4 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-6">Sector Stability</h4>
             <div className="space-y-6">
               {[
@@ -47,16 +47,16 @@ export default function EmergingHardware() {
         </div>
 
         {/* Feature Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-16 md:mb-24">
           {[
             { title: "Photonics", icon: <Zap size={24} />, desc: "Optical compute layers for zero-heat neural processing." },
             { title: "Solid State", icon: <Battery size={24} />, desc: "Next-gen energy storage for mobile intelligence." },
             { title: "RISC-V", icon: <Cpu size={24} />, desc: "Open-source silicon architecture gaining global momentum." },
             { title: "6G RF", icon: <Radio size={24} />, desc: "Terahertz frequency stacks for hyper-connected nodes." }
           ].map((feature, idx) => (
-            <div key={idx} className="p-8 bg-white/5 border border-white/10 rounded-3xl hover:bg-white/10 transition-all group">
-              <div className="text-red-400 mb-6 group-hover:scale-110 transition-transform">{feature.icon}</div>
-              <h4 className="text-white font-black uppercase italic mb-2 tracking-tight">{feature.title}</h4>
+            <div key={idx} className="p-6 md:p-8 bg-white/5 border border-white/10 rounded-2xl md:rounded-3xl hover:bg-white/10 transition-all group">
+              <div className="text-red-400 mb-4 md:mb-6 group-hover:scale-110 transition-transform">{feature.icon}</div>
+              <h4 className="text-lg md:text-xl font-black uppercase italic mb-2 tracking-tight text-white">{feature.title}</h4>
               <p className="text-xs text-slate-500 leading-relaxed">{feature.desc}</p>
             </div>
           ))}

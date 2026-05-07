@@ -52,25 +52,25 @@ export default function AIPage() {
         
         {/* Breadcrumb / Category Header */}
         <div className="flex items-center gap-4 mb-8">
-          <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl text-cyan-400">
-            <Cpu size={24} />
+          <div className="p-2.5 md:p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl text-cyan-400 shrink-0">
+            <Cpu size={20} className="md:w-6 md:h-6" />
           </div>
           <div>
-            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase italic">
+            <h1 className="text-2xl md:text-5xl font-black text-white tracking-tighter uppercase italic leading-none">
               AI & <span className="text-cyan-400">Machine Learning</span>
             </h1>
-            <p className="text-xs uppercase tracking-[0.4em] font-bold text-slate-500 mt-1">Intelligence Sector Report</p>
+            <p className="text-[8px] md:text-xs uppercase tracking-[0.4em] font-bold text-slate-500 mt-1 md:mt-2">Intelligence Sector Report</p>
           </div>
         </div>
 
         {/* Hero Vantage Point */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
-          <div className="lg:col-span-2 p-8 md:p-12 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mb-16 md:mb-20">
+          <div className="lg:col-span-2 p-6 md:p-12 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity hidden md:block">
               <Bot size={120} strokeWidth={1} />
             </div>
-            <h2 className="text-3xl font-black text-white mb-6 uppercase tracking-tight">The Neural Displacement</h2>
-            <p className="text-lg leading-relaxed text-slate-400 mb-8 max-w-2xl">
+            <h2 className="text-2xl md:text-3xl font-black text-white mb-4 md:mb-6 uppercase tracking-tight">The Neural Displacement</h2>
+            <p className="text-base md:text-lg leading-relaxed text-slate-400 mb-6 md:mb-8 max-w-2xl">
               We are moving beyond the era of "Chatbots" into the era of autonomous agents. The current shift indicates a 
               massive migration from centralized API dependencies to distributed, specialized reasoning models. 
               Efficiency is the new scale.
@@ -86,19 +86,19 @@ export default function AIPage() {
             </div>
           </div>
           
-          <div className="p-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-[2rem] text-[#000d14] flex flex-col justify-between shadow-[0_20px_50px_rgba(6,182,212,0.3)]">
+          <div className="p-6 md:p-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-[2rem] text-[#000d14] flex flex-col justify-between shadow-[0_20px_50px_rgba(6,182,212,0.3)]">
             <div className="space-y-4">
-              <Zap size={40} strokeWidth={3} />
-              <h3 className="text-2xl font-black uppercase leading-tight tracking-tighter italic">
+              <Zap size={32} className="md:w-10 md:h-10" strokeWidth={3} />
+              <h3 className="text-xl md:text-2xl font-black uppercase leading-tight tracking-tighter italic">
                 Get the Full Neural Audit
               </h3>
-              <p className="text-sm font-bold opacity-80 leading-relaxed">
+              <p className="text-xs md:text-sm font-bold opacity-80 leading-relaxed">
                 Unlock our deep-dive data on model efficiency benchmarks and proprietary hardware roadmaps.
               </p>
             </div>
-            <button className="mt-8 w-full py-4 bg-[#000d14] text-white font-black rounded-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+            <button className="mt-6 md:mt-8 w-full py-4 bg-[#000d14] text-white font-black rounded-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2 text-xs md:text-base">
               UPGRADE TO PRO
-              <ArrowUpRight size={20} />
+              <ArrowUpRight size={18} />
             </button>
           </div>
         </section>
@@ -139,19 +139,19 @@ export default function AIPage() {
         <PostFeed activeCategory="AI & Machine Learning" />
 
         {/* Bottom CTA */}
-        <div className="mt-24 p-12 bg-white/5 border border-white/10 rounded-[3rem] text-center relative overflow-hidden">
+        <div className="mt-16 md:mt-24 p-8 md:p-12 bg-white/5 border border-white/10 rounded-[2.5rem] md:rounded-[3rem] text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5" />
-          <h3 className="text-3xl font-black text-white mb-6 uppercase relative z-10 italic">Decipher the next neural shift.</h3>
-          <p className="text-slate-400 max-w-xl mx-auto mb-10 relative z-10">
+          <h3 className="text-xl md:text-3xl font-black text-white mb-4 md:mb-6 uppercase relative z-10 italic">Decipher the next neural shift.</h3>
+          <p className="text-xs md:text-base text-slate-400 max-w-xl mx-auto mb-8 md:mb-10 relative z-10">
             Join 40,000+ engineers and strategists getting our weekly neural audit. No noise. Just the news that matters.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 relative z-10">
             <input 
               type="email" 
               placeholder="terminal@intelligence.com" 
-              className="px-6 py-4 bg-[#000d14] border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition-all w-full sm:w-80"
+              className="px-6 py-4 bg-[#000d14] border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition-all w-full sm:w-80 text-sm"
             />
-            <button className="px-8 py-4 bg-cyan-500 text-[#000d14] font-black rounded-xl hover:bg-cyan-400 transition-all">
+            <button className="px-8 py-4 bg-cyan-500 text-[#000d14] font-black rounded-xl hover:bg-cyan-400 transition-all text-xs md:text-sm">
               SUBSCRIBE TO NEWS
             </button>
           </div>

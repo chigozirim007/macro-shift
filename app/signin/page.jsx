@@ -1,11 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { ShieldCheck, Lock, User, ArrowRight, Zap, Globe, Mail } from 'lucide-react';
 import { FaGoogle, FaGithub } from 'react-icons/fa';
+import { signIn } from "next-auth/react";
 
 export default function SignIn() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const isFormValid = email.trim() !== '' && email.includes('@') && password.trim().length >= 6;
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#000d14]">
       
@@ -24,7 +29,7 @@ export default function SignIn() {
       </div>
 
       {/* Sign In Container */}
-      <div className="relative z-20 w-full max-w-4xl px-6 flex flex-col lg:flex-row items-stretch gap-0 bg-[#001b2b]/60 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.5)]">
+      <div className="relative z-20 w-full max-w-4xl px-4 sm:px-6 flex flex-col lg:flex-row items-stretch gap-0 bg-[#001b2b]/60 backdrop-blur-3xl border border-white/10 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.5)] my-10">
         
         {/* Left Side - Welcome Back */}
         <div className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-between border-r border-white/5 bg-white/5">
@@ -59,20 +64,26 @@ export default function SignIn() {
         </div>
 
         {/* Right Side - Form */}
-        <div className="w-full lg:w-1/2 p-10 md:p-16 flex flex-col justify-center">
-          <div className="mb-10 text-center lg:text-left">
-             <h3 className="text-2xl font-black text-white uppercase tracking-tight italic">
+        <div className="w-full lg:w-1/2 p-8 md:p-16 flex flex-col justify-center">
+          <div className="mb-8 md:mb-10 text-center lg:text-left">
+             <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight italic">
               Sign <span className="text-cyan-500">In</span>
             </h3>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-2">Enter your credentials to continue</p>
+            <p className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-2">Enter your credentials to continue</p>
           </div>
 
           <div className="space-y-4 mb-8">
-            <button className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-4 text-[10px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all">
+            <button 
+              onClick={() => signIn("google", { callbackUrl: "/" })}
+              className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-4 text-[10px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all"
+            >
               <FaGoogle className="text-red-500 text-lg" />
               Sign in with Google
             </button>
-            <button className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-4 text-[10px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all">
+            <button 
+              onClick={() => signIn("github", { callbackUrl: "/" })}
+              className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center gap-4 text-[10px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all"
+            >
               <FaGithub className="text-white text-lg" />
               Sign in with GitHub
             </button>
@@ -91,6 +102,8 @@ export default function SignIn() {
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-cyan-500 transition-colors" />
                 <input 
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com" 
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-all placeholder:text-slate-700"
                 />
@@ -103,6 +116,8 @@ export default function SignIn() {
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-cyan-500 transition-colors" />
                 <input 
                   type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••" 
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-all placeholder:text-slate-700"
                 />
@@ -117,9 +132,16 @@ export default function SignIn() {
               <Link href="#" className="hover:text-cyan-500 transition-colors">Forgot Password?</Link>
             </div>
 
-            <button className="w-full py-5 bg-cyan-500 text-[#000d14] font-black rounded-2xl flex items-center justify-center gap-3 hover:bg-cyan-400 hover:-translate-y-1 transition-all shadow-[0_15px_40px_rgba(6,182,212,0.3)] group mt-8">
+            <button 
+              disabled={!isFormValid}
+              className={`w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all group mt-8 font-black ${
+                isFormValid 
+                  ? 'bg-cyan-500 text-[#000d14] hover:bg-cyan-400 hover:-translate-y-1 shadow-[0_15px_40px_rgba(6,182,212,0.3)]' 
+                  : 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/5'
+              }`}
+            >
               SIGN IN
-              <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <Zap className={`w-5 h-5 transition-transform ${isFormValid ? 'group-hover:scale-110' : ''}`} />
             </button>
 
             <div className="mt-8 text-center">

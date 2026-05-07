@@ -18,18 +18,25 @@ export const metadata = {
   description: "Decipher the Future. Direct the Shift.",
 };
 
-export default function RootLayout({ children }) {
+import AuthProvider from "@/components/AuthProvider";
+import { auth } from "@/auth";
+
+export default async function RootLayout({ children }) {
+  const session = await auth();
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-[100dvh] flex flex-col bg-[#000d14] text-white selection:bg-cyan-500/30">
-        <Navbar/>
-        <main className="flex-grow">
-          {children}
-        </main>
-        <Footer/>
+        <AuthProvider session={session}>
+          <Navbar/>
+          <main className="flex-grow">
+            {children}
+          </main>
+          <Footer/>
+        </AuthProvider>
       </body>
     </html>
   );
