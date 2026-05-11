@@ -112,12 +112,12 @@ const Navbar = () => {
                             <div className="flex items-center gap-4">
                                 <Link href="/account" className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all group/user">
                                     <img 
-                                        src={session.user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.name)}&background=06b6d4&color=fff`} 
-                                        alt={session.user.name}
+                                        src={session?.user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(session?.user?.name || 'User')}&background=06b6d4&color=fff`} 
+                                        alt={session?.user?.name || 'User'}
                                         className="w-6 h-6 rounded-full border border-cyan-500/50 group-hover/user:border-cyan-400 transition-colors object-cover"
-                                        onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.name)}&background=06b6d4&color=fff`; }}
+                                        onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(session?.user?.name || 'User')}&background=06b6d4&color=fff`; }}
                                     />
-                                    <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/user:text-cyan-400 transition-colors">{session.user?.name?.split(' ')[0] || 'User'}</span>
+                                    <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/user:text-cyan-400 transition-colors">{session?.user?.name?.split(' ')[0] || 'User'}</span>
                                 </Link>
                                 <button 
                                     onClick={() => signOut({ callbackUrl: "/" })}
@@ -155,10 +155,10 @@ const Navbar = () => {
                          {session && (
                              <Link href="/account" className="p-2 bg-white/5 border border-white/10 rounded-full">
                                 <img 
-                                    src={session.user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.name)}&background=06b6d4&color=fff`} 
-                                    alt={session.user.name}
+                                    src={session?.user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(session?.user?.name || 'User')}&background=06b6d4&color=fff`} 
+                                    alt={session?.user?.name || 'User'}
                                     className="w-6 h-6 rounded-full border border-cyan-500/50 object-cover"
-                                    onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.name)}&background=06b6d4&color=fff`; }}
+                                    onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(session?.user?.name || 'User')}&background=06b6d4&color=fff`; }}
                                 />
                              </Link>
                          )}
