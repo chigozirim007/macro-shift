@@ -1,31 +1,68 @@
 "use client";
 
-import React, { useState } from 'react';
-import { User, Mail, Globe, MapPin, Camera, Save, ArrowLeft, Shield, Zap, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Globe, MapPin, Camera, Save, ArrowLeft, Zap, X, Link as LinkIcon, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSession } from "next-auth/react";
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   
   const [formData, setFormData] = useState({
-    name: session?.user?.name || '',
-    username: session?.user?.name?.toLowerCase().replace(/ /g, '_') || '',
-    bio: 'Strategic Intelligence Analyst specializing in neural-lattice security and sovereign AI stacks.',
-    location: 'Lagos, Nigeria',
-    website: 'macroshift.com/protocol/01'
+    first_name: '',
+    last_name: '',
+    username: '',
+    bio: '',
+    location: '',
+    avatar_url: ''
   });
 
-  const handleSave = (e) => {
+  // Load existing data from session
+  useEffect(() => {
+    if (session?.user) {
+      setFormData({
+        first_name: session.user.name?.split(' ')[0] || '',
+        last_name: session.user.name?.split(' ').slice(1).join(' ') || '',
+        username: session.user.username || '',
+        bio: session.user.bio || '',
+        location: session.user.location || '',
+        avatar_url: session.user.image || ''
+      });
+    }
+  }, [session]);
+
+  const handleSave = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Mock save logic
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/users/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      if (!res.ok) throw new Error('Failed to update profile');
+      
+      // Update NextAuth session so it reflects globally immediately
+      await update({
+        ...session,
+        user: {
+          ...session.user,
+          name: `${formData.first_name} ${formData.last_name}`.trim(),
+          image: formData.avatar_url,
+          bio: formData.bio,
+          location: formData.location
+        }
+      });
+      
+      router.push('/account'); // Navigate back to profile
+    } catch (error) {
+      alert(error.message);
+    } finally {
       setIsLoading(false);
-      router.push('/account');
-    }, 1500);
+    }
   };
 
   return (
@@ -60,21 +97,25 @@ export default function EditProfilePage() {
               <div className="relative group/avatar">
                 <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full blur opacity-25 group-hover/avatar:opacity-50 transition-opacity"></div>
                 <img 
-                  src={session?.user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=06b6d4&color=fff`} 
+                  src={formData.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.first_name + ' ' + formData.last_name)}&background=06b6d4&color=fff`} 
                   className="relative w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-[#000d14] object-cover" 
+                  onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.first_name || 'U')}&background=06b6d4&color=fff`; }}
                 />
-                <button className="absolute bottom-4 right-4 p-4 bg-cyan-500 text-[#000d14] rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all">
-                  <Camera size={24} strokeWidth={3} />
-                </button>
               </div>
-              <div className="text-center md:text-left space-y-4">
+              <div className="text-center md:text-left flex-grow space-y-4">
                 <h3 className="text-xl font-black text-white uppercase italic">Display Asset</h3>
                 <p className="text-slate-500 text-sm font-light max-w-sm leading-relaxed">
-                  Update your high-fidelity visual identifier. Recommended size: 512x512px.
+                  Provide a direct image URL for your avatar (e.g. Imgur, GitHub). Database direct uploads require active bucket permissions.
                 </p>
-                <div className="flex gap-4">
-                  <button className="px-6 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all">Upload New</button>
-                  <button className="px-6 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-[10px] font-black text-red-500 uppercase tracking-widest hover:bg-red-500/20 transition-all">Remove</button>
+                <div className="relative group w-full max-w-md mt-4">
+                  <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                  <input 
+                    type="url" 
+                    placeholder="https://example.com/avatar.png"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-10 pr-4 text-white text-sm focus:outline-none focus:border-cyan-500/50 transition-all"
+                    value={formData.avatar_url}
+                    onChange={(e) => setFormData({...formData, avatar_url: e.target.value})}
+                  />
                 </div>
               </div>
             </div>
@@ -85,26 +126,26 @@ export default function EditProfilePage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] ml-1">Strategic Name</label>
+                <label className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] ml-1">First Name</label>
                 <div className="relative group">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
                   <input 
                     type="text" 
                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white focus:outline-none focus:border-cyan-500/50 transition-all font-bold"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({...formData, first_name: e.target.value})}
                   />
                 </div>
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] ml-1">Unique Identifier</label>
+                <label className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] ml-1">Last Name</label>
                 <div className="relative group">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">@</span>
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
                   <input 
                     type="text" 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-10 pr-6 text-white focus:outline-none focus:border-cyan-500/50 transition-all font-bold"
-                    value={formData.username}
-                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white focus:outline-none focus:border-cyan-500/50 transition-all font-bold"
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({...formData, last_name: e.target.value})}
                   />
                 </div>
               </div>
@@ -120,30 +161,16 @@ export default function EditProfilePage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] ml-1">Primary Node Node (Location)</label>
-                <div className="relative group">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
-                  <input 
-                    type="text" 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white focus:outline-none focus:border-cyan-500/50 transition-all font-bold"
-                    value={formData.location}
-                    onChange={(e) => setFormData({...formData, location: e.target.value})}
-                  />
-                </div>
-              </div>
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] ml-1">Terminal Link (Website)</label>
-                <div className="relative group">
-                  <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
-                  <input 
-                    type="text" 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white focus:outline-none focus:border-cyan-500/50 transition-all font-bold"
-                    value={formData.website}
-                    onChange={(e) => setFormData({...formData, website: e.target.value})}
-                  />
-                </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] ml-1">Primary Node Node (Location)</label>
+              <div className="relative group">
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                <input 
+                  type="text" 
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white focus:outline-none focus:border-cyan-500/50 transition-all font-bold"
+                  value={formData.location}
+                  onChange={(e) => setFormData({...formData, location: e.target.value})}
+                />
               </div>
             </div>
 
@@ -163,7 +190,7 @@ export default function EditProfilePage() {
               className="w-full md:w-auto px-16 py-5 bg-cyan-500 text-[#000d14] font-black rounded-2xl hover:bg-cyan-400 hover:-translate-y-1 transition-all shadow-[0_15px_40px_rgba(6,182,212,0.4)] flex items-center justify-center gap-3 text-xs tracking-[0.2em]"
             >
               {isLoading ? (
-                <div className="w-5 h-5 border-2 border-[#000d14]/30 border-t-[#000d14] rounded-full animate-spin" />
+                <Loader2 size={18} className="animate-spin" />
               ) : (
                 <>
                   SYNCHRONIZE PROTOCOL

@@ -133,7 +133,9 @@ export default function SignIn() {
             </div>
 
             <button 
+              type="button"
               disabled={!isFormValid}
+              onClick={() => signIn("credentials", { email, password, callbackUrl: "/" })}
               className={`w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all group mt-8 font-black ${
                 isFormValid 
                   ? 'bg-cyan-500 text-[#000d14] hover:bg-cyan-400 hover:-translate-y-1 shadow-[0_15px_40px_rgba(6,182,212,0.3)]' 

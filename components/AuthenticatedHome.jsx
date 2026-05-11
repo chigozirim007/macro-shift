@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Home as HomeIcon,
   Search,
@@ -18,18 +18,74 @@ import {
   Bookmark,
   Globe,
   Clock,
-  X
+  X,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton, PostSkeleton, ProfileSkeleton } from './Skeleton';
 
+function timeAgo(dateString) {
+  const seconds = Math.floor((new Date() - new Date(dateString)) / 1000);
+  if (seconds < 60) return 'just now';
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  return `${Math.floor(seconds / 86400)}d ago`;
+}
+
 export default function AuthenticatedHome({ session }) {
   const [activeTab, setActiveTab] = useState('for-you');
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  
+  // Data states
+  const [posts, setPosts] = useState([]);
+  const [userStats, setUserStats] = useState({ followers: 0, following: 0 });
+  
+  // Loading states
+  const [isLoadingFeed, setIsLoadingFeed] = useState(true);
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [feedError, setFeedError] = useState(null);
+
+  // New post state
   const [newPost, setNewPost] = useState({ title: '', content: '', category: 'AI & Machine Learning', references: [] });
   const [refInput, setRefInput] = useState('');
   const user = session?.user;
+
+  // Fetch posts
+  useEffect(() => {
+    async function fetchPosts() {
+      setIsLoadingFeed(true);
+      setFeedError(null);
+      try {
+        const res = await fetch('/api/posts');
+        if (!res.ok) throw new Error('Failed to load intelligence feed.');
+        const data = await res.json();
+        setPosts(data.posts || []);
+      } catch (err) {
+        setFeedError(err.message);
+      } finally {
+        setIsLoadingFeed(false);
+      }
+    }
+    fetchPosts();
+  }, []);
+
+  // Fetch user stats
+  useEffect(() => {
+    async function fetchStats() {
+      if (!user?.id) return;
+      try {
+        const res = await fetch(`/api/users/${user.id}/stats`);
+        if (res.ok) {
+          const data = await res.json();
+          setUserStats(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch stats', err);
+      }
+    }
+    fetchStats();
+  }, [user?.id]);
 
   const addReference = () => {
     if (refInput.trim()) {
@@ -38,35 +94,93 @@ export default function AuthenticatedHome({ session }) {
     }
   };
 
-  // Mock posts data
-  const posts = [
-    {
-      id: 1,
-      user: {
-        name: "NEFERTITI",
-        username: "firstladyship",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=nefertiti",
-        verified: true
-      },
-      content: "Strategic shifts are happening in the AI corridor. The move from cloud-centric to edge-native reasoning is no longer a prediction—it's the current reality for high-performance networks.",
-      time: "1d",
-      stats: { replies: "592", reposts: "1.9K", likes: "35.2K", views: "3.1M" },
-      repostedBy: "BEYONDTHYSEASEE"
-    },
-    {
-      id: 2,
-      user: {
-        name: "MacroShift",
-        username: "macroshift_hq",
-        image: "/logo.png",
-        verified: true
-      },
-      content: "We've just released the Q4 Strategic Map for Sovereign AI. Access the terminal to see the tectonic movements in the EU data landscape.",
-      time: "4h",
-      image: "https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=2000&auto=format&fit=crop",
-      stats: { replies: "124", reposts: "842", likes: "12.5K", views: "1.2M" }
+  const handleBroadcast = async () => {
+    if (!newPost.title || !newPost.content || !newPost.category) return;
+    
+    setIsBroadcasting(true);
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPost)
+      });
+      
+      if (!res.ok) throw new Error('Failed to broadcast post');
+      
+      const { post } = await res.json();
+      
+      // Add the new post to the feed immediately with default stats
+      const formattedPost = {
+        ...post,
+        users: {
+          id: user.id,
+          first_name: user.name.split(' ')[0],
+          last_name: user.name.split(' ').slice(1).join(' '),
+          username: user.username,
+          avatar_url: user.image,
+          is_verified: true // Assuming true for UI placeholder
+        },
+        likes_count: 0,
+        bookmarks_count: 0,
+        reposts_count: 0,
+        comments_count: 0,
+        views_count: 0,
+      };
+      
+      setPosts([formattedPost, ...posts]);
+      setIsPostModalOpen(false);
+      setNewPost({ title: '', content: '', category: 'AI & Machine Learning', references: [] });
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    } finally {
+      setIsBroadcasting(false);
     }
-  ];
+  };
+
+  // Interactions
+  const toggleAction = async (postId, actionType, countField, activeField, endpoint) => {
+    // Optimistic update
+    setPosts(prev => prev.map(p => {
+      if (p.id !== postId) return p;
+      const isActive = p[activeField];
+      return { 
+        ...p, 
+        [activeField]: !isActive, 
+        [countField]: isActive ? Math.max(0, p[countField] - 1) : p[countField] + 1 
+      };
+    }));
+
+    try {
+      await fetch(`/api/posts/${postId}/${endpoint}`, { method: 'POST' });
+    } catch {
+      // Revert on failure
+      setPosts(prev => prev.map(p => {
+        if (p.id !== postId) return p;
+        const isActive = !p[activeField]; // the reversed state
+        return { 
+          ...p, 
+          [activeField]: isActive, 
+          [countField]: isActive ? p[countField] + 1 : Math.max(0, p[countField] - 1) 
+        };
+      }));
+    }
+  };
+
+  const handleLike = (postId) => toggleAction(postId, 'like', 'likes_count', 'liked', 'like');
+  const handleBookmark = (postId) => toggleAction(postId, 'bookmark', 'bookmarks_count', 'bookmarked', 'bookmark');
+  const handleRepost = (postId) => toggleAction(postId, 'repost', 'reposts_count', 'reposted', 'repost');
+
+  const authorName = (post) => {
+    if (!post.users) return 'Unknown Author';
+    return `${post.users.first_name || ''} ${post.users.last_name || ''}`.trim() || post.users.username || 'Unknown';
+  };
+
+  const authorAvatar = (post) => {
+    if (post.users?.avatar_url) return post.users.avatar_url;
+    const name = authorName(post);
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=06b6d4&color=fff`;
+  };
 
   return (
     <div className="min-h-screen bg-[#000d14] text-white flex flex-col max-w-[1700px] mx-auto px-2 md:px-10 lg:px-16 pb-20 pt-24 md:pt-32 relative overflow-hidden">
@@ -87,6 +201,7 @@ export default function AuthenticatedHome({ session }) {
               <img 
                 src={user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=06b6d4&color=fff`} 
                 className="w-14 h-14 rounded-2xl border-2 border-cyan-500/20 shrink-0 object-cover" 
+                onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=06b6d4&color=fff`; }}
               />
               <div className="flex-grow space-y-6">
                 <div 
@@ -116,104 +231,124 @@ export default function AuthenticatedHome({ session }) {
           </div>
 
           <main className="flex-grow space-y-6 md:space-y-12">
-            {isLoading ? (
-              Array(3).fill(0).map((_, i) => <PostSkeleton key={i} />)
-            ) : (
-              posts.map((post) => {
-                return (
-                  <Link href={`/post/${post.id}`} key={post.id} className="block group">
-                    <div className="bg-white/[0.03] border border-white/5 rounded-[1.5rem] md:rounded-[3rem] p-4 md:p-12 hover:bg-white/[0.05] transition-all cursor-pointer shadow-[0_30px_100px_rgba(0,0,0,0.4)]">
-                      {post.repostedBy && (
-                        <div className="flex items-center gap-2 mb-4 ml-1 text-[9px] md:text-[11px] font-black text-slate-500 uppercase tracking-[0.15em]">
-                          <Repeat2 size={14} className="text-cyan-400" />
-                          {post.repostedBy} Reposted
-                        </div>
-                      )}
-                      <div className="flex gap-3 md:gap-8">
-                        <img 
-                          src={post.user.image} 
-                          className="w-10 h-10 md:w-20 md:h-20 rounded-xl md:rounded-3xl border-2 border-cyan-500/20 shrink-0 object-cover" 
-                          onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(post.user.name)}&background=06b6d4&color=fff`; }}
-                        />
-                        <div className="flex-grow space-y-3 md:space-y-6 overflow-hidden">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-                              <span className="text-base md:text-2xl font-black text-white uppercase italic tracking-tighter leading-none truncate max-w-[150px] md:max-w-none">{post.user.name}</span>
-                              <div className="flex items-center gap-2">
-                                {post.user.verified && <Check size={12} className="text-[#000d14] p-0.5 bg-cyan-400 rounded-full" />}
-                                <div 
-                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                                  className="ml-1 px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-[8px] md:text-[9px] font-black text-cyan-400 uppercase tracking-widest hover:bg-cyan-500 hover:text-[#000d14] transition-all cursor-pointer"
-                                >
-                                  Follow
-                                </div>
+            {isLoadingFeed && Array(3).fill(0).map((_, i) => <PostSkeleton key={i} />)}
+            
+            {!isLoadingFeed && feedError && (
+              <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-[2rem] flex items-center gap-4">
+                <AlertCircle size={24} className="text-red-400 shrink-0" />
+                <p className="text-red-400 font-bold">{feedError}</p>
+              </div>
+            )}
+
+            {!isLoadingFeed && !feedError && posts.length === 0 && (
+              <div className="py-20 text-center border border-dashed border-white/10 rounded-[3rem]">
+                <p className="text-slate-500 uppercase tracking-widest font-black text-xs mb-4">No intelligence posts broadcasted yet.</p>
+                <button onClick={() => setIsPostModalOpen(true)} className="px-6 py-3 bg-cyan-500/10 border border-cyan-500/30 rounded-xl text-[10px] font-black text-cyan-400 uppercase tracking-widest hover:bg-cyan-500 hover:text-[#000d14] transition-all">
+                  Be the first to broadcast
+                </button>
+              </div>
+            )}
+
+            {!isLoadingFeed && !feedError && posts.map((post) => {
+              return (
+                <Link href={`/post/${post.id}`} key={post.id} className="block group">
+                  <div className="bg-white/[0.03] border border-white/5 rounded-[1.5rem] md:rounded-[3rem] p-4 md:p-12 hover:bg-white/[0.05] transition-all cursor-pointer shadow-[0_30px_100px_rgba(0,0,0,0.4)]">
+                    {post.repostedBy && (
+                      <div className="flex items-center gap-2 mb-4 ml-1 text-[9px] md:text-[11px] font-black text-slate-500 uppercase tracking-[0.15em]">
+                        <Repeat2 size={14} className="text-cyan-400" />
+                        {post.repostedBy} Reposted
+                      </div>
+                    )}
+                    <div className="flex gap-3 md:gap-8">
+                      <img 
+                        src={authorAvatar(post)} 
+                        className="w-10 h-10 md:w-20 md:h-20 rounded-xl md:rounded-3xl border-2 border-cyan-500/20 shrink-0 object-cover" 
+                        onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName(post))}&background=06b6d4&color=fff`; }}
+                      />
+                      <div className="flex-grow space-y-3 md:space-y-6 overflow-hidden">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                            <span className="text-base md:text-2xl font-black text-white uppercase italic tracking-tighter leading-none truncate max-w-[150px] md:max-w-none">
+                              {authorName(post)}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              {post.users?.is_verified && <Check size={12} className="text-[#000d14] p-0.5 bg-cyan-400 rounded-full" />}
+                              <div 
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                className="ml-1 px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-[8px] md:text-[9px] font-black text-cyan-400 uppercase tracking-widest hover:bg-cyan-500 hover:text-[#000d14] transition-all cursor-pointer"
+                              >
+                                Follow
                               </div>
-                              <span className="text-[10px] md:text-base font-bold text-slate-500 tracking-tight">@{post.user.username} • {post.time}</span>
                             </div>
-                            <MoreVertical size={20} className="text-slate-600 hover:text-white transition-colors" />
+                            <span className="text-[10px] md:text-base font-bold text-slate-500 tracking-tight">@{post.users?.username} • {timeAgo(post.created_at)}</span>
                           </div>
-                          <p className="text-sm md:text-xl text-slate-200 leading-relaxed font-light">{post.content}</p>
-                          {post.image && (
-                            <div className="mt-8 rounded-[2.5rem] overflow-hidden border border-white/10 aspect-video relative group/image">
-                              <img src={post.image} className="w-full h-full object-cover group-hover/image:scale-105 transition-transform duration-1000" />
-                              <div className="absolute inset-0 bg-gradient-to-t from-[#000d14]/40 to-transparent" />
+                          <MoreVertical size={20} className="text-slate-600 hover:text-white transition-colors" />
+                        </div>
+                        <h4 className="text-lg md:text-xl font-bold text-white leading-tight uppercase italic">{post.title}</h4>
+                        <p className="text-sm md:text-xl text-slate-200 leading-relaxed font-light">{post.content}</p>
+                        {post.image_url && (
+                          <div className="mt-8 rounded-[2.5rem] overflow-hidden border border-white/10 aspect-video relative group/image">
+                            <img src={post.image_url} className="w-full h-full object-cover group-hover/image:scale-105 transition-transform duration-1000" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#000d14]/40 to-transparent" />
+                          </div>
+                        )}
+
+                        {/* Post Actions (Enhanced Size) */}
+                        <div className="flex items-center justify-between mt-8 md:mt-12 max-w-2xl text-slate-400">
+                          <div 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                            className="flex items-center gap-1.5 md:gap-3 hover:text-cyan-400 cursor-pointer transition-colors group/btn"
+                          >
+                            <div className="p-2 md:p-3 rounded-full group-hover/btn:bg-cyan-400/10 transition-colors">
+                              <MessageCircle size={20} className="md:w-6 md:h-6" />
                             </div>
-                          )}
-  
-                      {/* Post Actions (Enhanced Size) */}
-                      <div className="flex items-center justify-between mt-8 md:mt-12 max-w-2xl text-slate-400">
-                      <div 
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                        className="flex items-center gap-1.5 md:gap-3 hover:text-cyan-400 cursor-pointer transition-colors group/btn"
-                      >
-                        <div className="p-2 md:p-3 rounded-full group-hover/btn:bg-cyan-400/10 transition-colors">
-                          <MessageCircle size={20} className="md:w-6 md:h-6" />
-                        </div>
-                        <span className="text-[10px] md:text-sm font-black italic">{post.stats.replies}</span>
-                      </div>
-                      <div 
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                        className="flex items-center gap-1.5 md:gap-3 hover:text-green-400 cursor-pointer transition-colors group/btn"
-                      >
-                        <div className="p-2 md:p-3 rounded-full group-hover/btn:bg-green-400/10 transition-colors">
-                          <Repeat2 size={20} className="md:w-6 md:h-6" />
-                        </div>
-                        <span className="text-[10px] md:text-sm font-black italic">{post.stats.reposts}</span>
-                      </div>
-                      <div 
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                        className="flex items-center gap-1.5 md:gap-3 hover:text-pink-500 cursor-pointer transition-colors group/btn"
-                      >
-                        <div className="p-2 md:p-3 rounded-full group-hover/btn:bg-pink-500/10 transition-colors">
-                          <Heart size={20} className="md:w-6 md:h-6" />
-                        </div>
-                        <span className="text-[10px] md:text-sm font-black italic">{post.stats.likes}</span>
-                      </div>
-                      <div 
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                        className="hidden sm:flex items-center gap-1.5 md:gap-3 hover:text-cyan-400 cursor-pointer transition-colors group/btn"
-                      >
-                        <div className="p-2 md:p-3 rounded-full group-hover/btn:bg-cyan-400/10 transition-colors">
-                          <Zap size={20} className="md:w-6 md:h-6" />
-                        </div>
-                        <span className="text-[10px] md:text-sm font-black italic">{post.stats.views}</span>
-                      </div>
-                        <div className="flex items-center gap-2 md:gap-4">
-                          <div className="p-2 md:p-3 rounded-full hover:bg-white/10 transition-colors cursor-pointer">
-                            <Bookmark size={20} className="md:w-6 md:h-6 hover:text-cyan-400" />
+                            <span className="text-[10px] md:text-sm font-black italic">{post.comments_count || 0}</span>
                           </div>
-                          <div className="p-2 md:p-3 rounded-full hover:bg-white/10 transition-colors cursor-pointer">
-                            <Share size={20} className="md:w-6 md:h-6 hover:text-cyan-400" />
+                          <div 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRepost(post.id); }}
+                            className={`flex items-center gap-1.5 md:gap-3 cursor-pointer transition-colors group/btn ${post.reposted ? 'text-green-400' : 'hover:text-green-400'}`}
+                          >
+                            <div className={`p-2 md:p-3 rounded-full transition-colors ${post.reposted ? 'bg-green-400/10' : 'group-hover/btn:bg-green-400/10'}`}>
+                              <Repeat2 size={20} className="md:w-6 md:h-6" />
+                            </div>
+                            <span className="text-[10px] md:text-sm font-black italic">{post.reposts_count || 0}</span>
+                          </div>
+                          <div 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleLike(post.id); }}
+                            className={`flex items-center gap-1.5 md:gap-3 cursor-pointer transition-colors group/btn ${post.liked ? 'text-pink-500' : 'hover:text-pink-500'}`}
+                          >
+                            <div className={`p-2 md:p-3 rounded-full transition-colors ${post.liked ? 'bg-pink-500/10' : 'group-hover/btn:bg-pink-500/10'}`}>
+                              <Heart size={20} className="md:w-6 md:h-6" fill={post.liked ? 'currentColor' : 'none'} />
+                            </div>
+                            <span className="text-[10px] md:text-sm font-black italic">{post.likes_count || 0}</span>
+                          </div>
+                          <div 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                            className="hidden sm:flex items-center gap-1.5 md:gap-3 hover:text-cyan-400 cursor-pointer transition-colors group/btn"
+                          >
+                            <div className="p-2 md:p-3 rounded-full group-hover/btn:bg-cyan-400/10 transition-colors">
+                              <Zap size={20} className="md:w-6 md:h-6" />
+                            </div>
+                            <span className="text-[10px] md:text-sm font-black italic">{post.views_count || 0}</span>
+                          </div>
+                          <div className="flex items-center gap-2 md:gap-4">
+                            <div 
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBookmark(post.id); }}
+                              className={`p-2 md:p-3 rounded-full transition-colors cursor-pointer ${post.bookmarked ? 'text-cyan-400 bg-white/5' : 'hover:bg-white/10 hover:text-cyan-400'}`}
+                            >
+                              <Bookmark size={20} className="md:w-6 md:h-6" fill={post.bookmarked ? 'currentColor' : 'none'} />
+                            </div>
+                            <div className="p-2 md:p-3 rounded-full hover:bg-white/10 transition-colors cursor-pointer">
+                              <Share size={20} className="md:w-6 md:h-6 hover:text-cyan-400" />
+                            </div>
                           </div>
                         </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </Link>
-                );
-              })
-            )}
+                </Link>
+              );
+            })}
           </main>
         </div>
 
@@ -223,7 +358,7 @@ export default function AuthenticatedHome({ session }) {
             <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/10 rounded-full blur-[80px] -mr-24 -mt-24 group-hover:bg-cyan-500/20 transition-all duration-700" />
 
             <div className="relative z-10 space-y-10">
-              {isLoading ? <ProfileSkeleton /> : (
+              {isLoadingFeed ? <ProfileSkeleton /> : (
                 <>
                   <div className="flex items-center gap-8">
                     <div className="relative">
@@ -243,35 +378,35 @@ export default function AuthenticatedHome({ session }) {
               <div className="space-y-6">
                 <div className="p-7 bg-white/5 rounded-[2rem] border border-white/5 hover:border-cyan-500/30 transition-all">
                   <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] mb-3">Location</p>
-                  <p className="text-lg font-bold text-white flex items-center gap-3 italic">
-                    <Globe size={20} className="text-cyan-400" />
-                    Lagos, Nigeria
+                  <p className="text-lg font-bold text-white flex items-center gap-3 italic truncate">
+                    <Globe size={20} className="text-cyan-400 shrink-0" />
+                    {user?.location || 'Not Specified'}
                   </p>
                 </div>
                 <div className="p-7 bg-white/5 rounded-[2rem] border border-white/5 hover:border-cyan-500/30 transition-all">
                   <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] mb-3">Joined</p>
                   <p className="text-lg font-bold text-white flex items-center gap-3 italic">
-                    <Clock size={20} className="text-cyan-400" />
-                    December 2021
+                    <Clock size={20} className="text-cyan-400 shrink-0" />
+                    {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Recently'}
                   </p>
                 </div>
               </div>
 
               <div className="flex justify-between pt-8 border-t border-white/5">
                 <div className="text-center">
-                  <p className="text-3xl font-black text-white italic tracking-tighter">124</p>
+                  <p className="text-3xl font-black text-white italic tracking-tighter">{userStats.following || 0}</p>
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.3em]">Following</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-3xl font-black text-white italic tracking-tighter">174</p>
+                  <p className="text-3xl font-black text-white italic tracking-tighter">{userStats.followers || 0}</p>
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.3em]">Followers</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-8">
-                <Link href="/account" className="w-full">
+                <Link href="/account/edit" className="w-full">
                   <button className="w-full py-4 bg-white/5 border border-white/10 rounded-[1.5rem] text-[9px] font-black text-white uppercase tracking-[0.2em] hover:bg-white/10 transition-all">
-                    Profile
+                    Edit Profile
                   </button>
                 </Link>
                 <button 
@@ -314,7 +449,7 @@ export default function AuthenticatedHome({ session }) {
         <Plus size={32} className="md:w-10 md:h-10" strokeWidth={3} />
       </button>
 
-      {/* Mock Create Post Modal */}
+      {/* Broadcast Modal */}
       {isPostModalOpen && (
         <div className="fixed inset-0 z-[5000] flex items-center justify-center p-2 sm:p-4 bg-[#000d14]/98 backdrop-blur-2xl animate-in fade-in duration-300">
           <div className="bg-[#001b2b] border border-white/10 w-full max-w-2xl rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 space-y-8 shadow-2xl scale-in-center max-h-[95vh] overflow-y-auto custom-scrollbar overflow-x-hidden relative">
@@ -361,15 +496,6 @@ export default function AuthenticatedHome({ session }) {
                 />
               </div>
 
-              {/* Media Section (NEW) */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] ml-1">Intelligence Media</label>
-                <div className="group relative w-full h-40 bg-white/5 border border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-all">
-                  <Plus size={24} className="text-cyan-500 mb-2 group-hover:scale-110 transition-transform" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Attach Visual Evidence</span>
-                </div>
-              </div>
-
               <div className="space-y-4">
                 <label className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] ml-1">Intelligence Sources</label>
                 <div className="flex gap-4">
@@ -403,18 +529,17 @@ export default function AuthenticatedHome({ session }) {
               <button 
                 onClick={() => setIsPostModalOpen(false)}
                 className="w-full sm:w-auto px-10 py-4 border border-white/10 text-slate-500 font-bold rounded-xl hover:bg-white/5 transition-all uppercase tracking-widest text-[10px]"
+                disabled={isBroadcasting}
               >
                 Cancel
               </button>
               <button 
-                onClick={() => {
-                  setIsLoading(true);
-                  setIsPostModalOpen(false);
-                  setTimeout(() => setIsLoading(false), 2000);
-                }}
-                className="w-full sm:w-auto px-12 py-4 bg-cyan-500 text-[#000d14] font-black rounded-xl hover:bg-cyan-400 transition-all shadow-[0_15px_40px_rgba(6,182,212,0.3)] uppercase tracking-[0.2em] text-[10px]"
+                onClick={handleBroadcast}
+                disabled={isBroadcasting || !newPost.title || !newPost.content}
+                className="w-full sm:w-auto px-12 py-4 bg-cyan-500 text-[#000d14] font-black rounded-xl hover:bg-cyan-400 transition-all shadow-[0_15px_40px_rgba(6,182,212,0.3)] uppercase tracking-[0.2em] text-[10px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Broadcast Intelligence
+                {isBroadcasting && <Loader2 size={16} className="animate-spin" />}
+                {isBroadcasting ? 'Broadcasting...' : 'Broadcast Intelligence'}
               </button>
             </div>
           </div>
