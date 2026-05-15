@@ -63,7 +63,7 @@ export default function EditProfilePage() {
       setFormData(prev => ({ ...prev, avatar_url: newUrl }));
 
       // --- COMPREHENSIVE AUTO-SYNC ---
-      // Bundles name, bio, location, and the new avatar into one sync
+      // Bundles all changes and the new avatar into one automated event
       const profileRes = await fetch('/api/users/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -75,7 +75,7 @@ export default function EditProfilePage() {
 
       const updatedUser = profileData.user;
 
-      // Update NextAuth session with ALL new data
+      // Update NextAuth session with ALL new data instantly
       await update({
         ...session,
         user: {
@@ -219,12 +219,22 @@ export default function EditProfilePage() {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ ...formData, avatar_url: '' })
                           });
-                          if (!res.ok) throw new Error('Failed to remove asset');
                           
+                          const data = await res.json();
+                          if (!res.ok) throw new Error(data.error || 'Failed to remove asset');
+                          
+                          const updatedUser = data.user;
                           setFormData({...formData, avatar_url: ''});
+                          
                           await update({
                             ...session,
-                            user: { ...session.user, image: '' }
+                            user: {
+                              ...session.user,
+                              name: `${updatedUser.first_name} ${updatedUser.last_name}`.trim(),
+                              image: '',
+                              bio: updatedUser.bio,
+                              location: updatedUser.location
+                            }
                           });
                           setIsSuccessModalOpen(true);
                           setTimeout(() => setIsSuccessModalOpen(false), 2000);
