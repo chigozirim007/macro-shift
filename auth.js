@@ -74,14 +74,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/signin",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session: updatedSession }) {
+      // Initial sign in
       if (user) {
         token.id = user.id;
         token.username = user.username;
         token.location = user.location;
         token.bio = user.bio;
         token.created_at = user.created_at;
+        token.name = user.name;
+        token.picture = user.image;
       }
+      
+      // Handle session update
+      if (trigger === "update" && updatedSession) {
+        // Sync token with updated session data
+        if (updatedSession.user?.name) token.name = updatedSession.user.name;
+        if (updatedSession.user?.image !== undefined) token.picture = updatedSession.user.image;
+        if (updatedSession.user?.username) token.username = updatedSession.user.username;
+        if (updatedSession.user?.bio !== undefined) token.bio = updatedSession.user.bio;
+        if (updatedSession.user?.location !== undefined) token.location = updatedSession.user.location;
+      }
+      
       return token;
     },
     async session({ session, token }) {
@@ -91,6 +105,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.location = token.location;
         session.user.bio = token.bio;
         session.user.created_at = token.created_at;
+        session.user.name = token.name;
+        session.user.image = token.picture;
       }
       return session;
     },

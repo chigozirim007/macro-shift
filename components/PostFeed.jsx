@@ -143,7 +143,13 @@ export default function PostFeed({ activeCategory = null }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {posts.map((post) => (
               <Link href={`/post/${post.id}`} key={post.id} className="block group">
-                <div className="flex flex-col h-full bg-white/5 border border-white/10 rounded-2xl md:rounded-[2rem] overflow-hidden hover:bg-white/10 transition-all duration-500 hover:border-cyan-500/30 shadow-2xl">
+                <div className="relative flex flex-col h-full bg-white/5 border border-white/10 rounded-2xl md:rounded-[2rem] overflow-hidden hover:bg-white/10 transition-all duration-500 hover:border-cyan-500/30 shadow-2xl">
+                  {/* Animated Post Background Fitting */}
+                  <div className="absolute inset-0 z-0 pointer-events-none">
+                    <div className="absolute -top-[20%] -left-[20%] w-[140%] h-[140%] bg-gradient-radial from-cyan-500/5 via-transparent to-transparent animate-intelligence-pulse" />
+                  </div>
+
+                  <div className="relative z-10 flex flex-col h-full">
                   <div className="p-6 md:p-8 pb-4">
                     <div className="flex justify-between items-start mb-4 md:mb-6">
                       <span className="px-2.5 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-[8px] md:text-[9px] font-black text-cyan-400 uppercase tracking-widest">
@@ -207,6 +213,7 @@ export default function PostFeed({ activeCategory = null }) {
                     </div>
                     <div className="w-full py-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white uppercase tracking-[0.2em] group-hover:bg-cyan-500 group-hover:text-[#000d14] transition-all flex items-center justify-center gap-2">
                       READ POST <ArrowRight size={14} />
+                    </div>
                     </div>
                   </div>
                 </div>

@@ -20,6 +20,7 @@ export default function AccountPage() {
   
   const [posts, setPosts] = useState([]);
   const [userStats, setUserStats] = useState({ followers: 0, following: 0 });
+  const [activeTab, setActiveTab] = useState('Posts');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,15 +34,16 @@ export default function AccountPage() {
       if (!session?.user?.id) return;
       setIsLoading(true);
       try {
-        // Fetch User Posts
-        const postsRes = await fetch(`/api/posts?user_id=${session.user.id}`);
+        const [postsRes, statsRes] = await Promise.all([
+          fetch(`/api/posts?user_id=${session.user.id}`),
+          fetch(`/api/users/${session.user.id}/stats`)
+        ]);
+
         if (postsRes.ok) {
           const postsData = await postsRes.json();
           setPosts(postsData.posts || []);
         }
 
-        // Fetch User Stats
-        const statsRes = await fetch(`/api/users/${session.user.id}/stats`);
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           setUserStats(statsData);
@@ -65,6 +67,15 @@ export default function AccountPage() {
   }
 
   const user = session.user;
+
+  // Filter content based on active tab
+  const getTabContent = () => {
+    if (activeTab === 'Posts') return posts;
+    if (activeTab === 'Bookmark') return posts.filter(p => p.bookmarked);
+    return []; // For now, other tabs are empty
+  };
+
+  const filteredContent = getTabContent();
 
   // Interactions (same as dashboard)
   const toggleAction = async (postId, actionType, countField, activeField, endpoint) => {
@@ -210,29 +221,30 @@ export default function AccountPage() {
           <div className="lg:col-span-3 space-y-8">
             {/* Custom Tabs */}
             <div className="flex border-b border-white/10 mt-4 overflow-x-auto no-scrollbar scroll-smooth">
-              {['Posts', 'Replies', 'Highlights', 'Articles', 'Media'].map((tab, idx) => (
+              {['Posts', 'Replies', 'Bookmark', 'Media'].map((tab) => (
                 <button 
                   key={tab} 
-                  className={`px-6 md:px-8 py-4 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-all relative whitespace-nowrap ${idx === 0 ? 'text-cyan-400' : 'text-slate-500 hover:text-white'}`}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-6 md:px-8 py-4 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] transition-all relative whitespace-nowrap ${activeTab === tab ? 'text-cyan-400' : 'text-slate-500 hover:text-white'}`}
                 >
                   {tab}
-                  {idx === 0 && <div className="absolute bottom-0 left-0 w-full h-1 bg-cyan-500 rounded-t-full shadow-[0_-5px_15px_rgba(6,182,212,0.5)]" />}
+                  {activeTab === tab && <div className="absolute bottom-0 left-0 w-full h-1 bg-cyan-500 rounded-t-full shadow-[0_-5px_15px_rgba(6,182,212,0.5)]" />}
                 </button>
               ))}
             </div>
 
-            {/* Posts Feed */}
+            {/* Content Feed */}
             <div className="space-y-6 pt-4">
               {isLoading ? (
                 <div className="flex justify-center py-10">
                   <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
                 </div>
-              ) : posts.length === 0 ? (
+              ) : filteredContent.length === 0 ? (
                 <div className="py-20 text-center border border-dashed border-white/10 rounded-[3rem]">
-                  <p className="text-slate-500 uppercase tracking-widest font-black text-xs mb-4">No intelligence posts broadcasted yet.</p>
+                  <p className="text-slate-500 uppercase tracking-widest font-black text-xs mb-4">no {activeTab.toLowerCase()}.............</p>
                 </div>
               ) : (
-                posts.map((post) => (
+                filteredContent.map((post) => (
                   <div key={post.id} className="bg-white/5 border border-white/10 rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-8 hover:bg-white/10 transition-all group cursor-pointer">
                     <Link href={`/post/${post.id}`}>
                       <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
@@ -244,7 +256,7 @@ export default function AccountPage() {
                         <div className="flex-grow">
                           <div className="flex items-center justify-between">
                             <h4 className="text-xs md:text-sm font-black text-white uppercase italic tracking-wider flex items-center gap-2">
-                              {user.name}
+                              {post.users?.first_name} {post.users?.last_name}
                               {post.users?.is_verified && <Shield className="w-3 h-3 text-cyan-400 fill-cyan-400/20" />}
                             </h4>
                           </div>

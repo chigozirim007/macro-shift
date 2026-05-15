@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
     const { data: post, error } = await supabase
       .from('posts')
       .select(`
-        id, title, content, category, post_references, created_at, updated_at,
+        id, title, content, category, post_post_references, created_at, updated_at,
         users:user_id ( id, first_name, last_name, username, avatar_url ),
         likes(count),
         bookmarks(count),
@@ -49,7 +49,7 @@ export async function PUT(request, { params }) {
 
     const { id } = await params;
     const body = await request.json();
-    const { title, content, category, references: post_references } = body;
+    const { title, content, category, references: post_post_references } = body;
 
     // Verify ownership
     const { data: post } = await supabase
@@ -64,7 +64,7 @@ export async function PUT(request, { params }) {
 
     const { data: updated, error } = await supabase
       .from('posts')
-      .update({ title, content, category, post_references: post_references || [], updated_at: new Date().toISOString() })
+      .update({ title, content, category, post_post_references: post_post_references || [], updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single();
