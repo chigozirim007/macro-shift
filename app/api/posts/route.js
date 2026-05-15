@@ -16,7 +16,7 @@ export async function GET(request) {
         title,
         content,
         category,
-        post_references,
+        post_post_references,
         created_at,
         users:user_id (
           id,
@@ -79,7 +79,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { title, content, category, references: post_references, image_url } = body;
+    const { title, content, category, post_post_references, image_url } = body;
 
     if (!title || !content || !category) {
       return NextResponse.json({ error: 'Title, content, and category are required.' }, { status: 400 });
@@ -103,15 +103,14 @@ export async function POST(request) {
         title,
         content,
         category,
-        post_references: post_references || [],
-        image_url: image_url || null, // if you choose to support media upload
+        post_post_references: post_post_references || [],
       })
       .select()
       .single();
 
     if (error) {
       console.error('Post insert error:', error);
-      return NextResponse.json({ error: 'Failed to create post.' }, { status: 500 });
+      return NextResponse.json({ error: error.message || 'Failed to create post.' }, { status: 500 });
     }
 
     return NextResponse.json({ post }, { status: 201 });
