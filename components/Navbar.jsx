@@ -3,12 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, Menu, X, UserRound, Zap, LogOut, User, CreditCard, Bookmark, LifeBuoy } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Search, Menu, X, UserRound, Zap, LogOut, User, CreditCard, Bookmark, LifeBuoy, ShieldCheck } from 'lucide-react';
 import { useSession, signOut } from "next-auth/react";
 const Navbar = () => {
+    const pathname = usePathname();
+    const isAdminPage = pathname === '/admin';
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const { data: session } = useSession();
+    const isAdmin = session?.user?.role === 'admin' || session?.user?.email === 'nwokedichigozirim747@gmail.com';
 
     // Dynamic background adjustment and scroll lock
     useEffect(() => {
@@ -26,6 +30,8 @@ const Navbar = () => {
             document.body.style.overflow = 'unset';
         };
     }, [isOpen]);
+
+    if (isAdminPage) return null;
 
     return (
         <nav className={`fixed top-0 w-full z-[2000] transition-all duration-700 ease-in-out ${scrolled
@@ -57,23 +63,15 @@ const Navbar = () => {
                         </div>
                     </Link>
 
-                    {/* Desktop Navigation - Animated Staggered Underlines */}
+                    {/* Desktop Navigation - Authority Stream */}
                     <div className="hidden sm:flex items-center space-x-4 md:space-x-8">
-                        {session ? (
-                            <>
-                                {['For you', 'Following'].map((item) => (
-                                    <button
-                                        key={item}
-                                        className="relative text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-slate-300 hover:text-white transition-all duration-300 group"
-                                    >
-                                        {item}
-                                        <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-500 group-hover:w-full" />
-                                        {/* Mock active state for 'For you' */}
-                                        {item === 'For you' && <span className="absolute -bottom-2 left-0 w-full h-[2px] bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" />}
-                                    </button>
-                                ))}
-                            </>
-                        ) : (
+                        {session && isAdmin && (
+                            <Link href="/admin" className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-[#000d14] border border-cyan-400 rounded-xl hover:bg-cyan-400 transition-all group/admin shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+                                <ShieldCheck size={16} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Oversight Console</span>
+                            </Link>
+                        )}
+                        {!session && (
                             <div className="hidden lg:flex items-center space-x-8">
                                 {['AI & Machine Learning', 'Trends', 'Cloud & Infrastructure', 'Software Development', 'Emerging Hardware', 'Contact Us'].map((item) => (
                                     <Link
@@ -195,10 +193,11 @@ const Navbar = () => {
                                 <div className="flex flex-col space-y-4">
                                     {[
                                         { label: 'Profile', icon: <User size={24} />, href: '/account' },
+                                        { label: 'Admin Console', icon: <ShieldCheck size={24} />, href: '/admin', adminOnly: true },
                                         { label: 'Premium', icon: <CreditCard size={24} />, href: '#', disabled: true },
                                         { label: 'Bookmarks', icon: <Bookmark size={24} />, href: '#' },
                                         { label: 'Support', icon: <LifeBuoy size={24} />, href: '/contact-us' },
-                                    ].map((item) => (
+                                    ].filter(item => !item.adminOnly || isAdmin).map((item) => (
                                         <Link 
                                             key={item.label}
                                             href={item.href}

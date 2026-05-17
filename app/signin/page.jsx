@@ -5,10 +5,14 @@ import Link from 'next/link';
 import { ShieldCheck, Lock, User, ArrowRight, Zap, Globe, Mail } from 'lucide-react';
 import { FaGoogle, FaGithub } from 'react-icons/fa';
 import { signIn } from "next-auth/react";
+import ErrorModal from '@/components/ErrorModal';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const isFormValid = email.trim() !== '' && email.includes('@') && password.trim().length >= 6;
   return (
@@ -72,6 +76,11 @@ export default function SignIn() {
             <p className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-2">Enter your credentials to continue</p>
           </div>
 
+          <ErrorModal 
+            message={errorMessage} 
+            onClose={() => setErrorMessage('')} 
+          />
+
           <div className="space-y-4 mb-8">
             <button 
               onClick={() => signIn("google", { callbackUrl: "/" })}
@@ -113,9 +122,15 @@ export default function SignIn() {
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Password</label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-cyan-500 transition-colors" />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-1 hover:bg-white/5 rounded-md transition-all"
+                >
+                  <Lock className={`w-4 h-4 transition-colors ${showPassword ? 'text-cyan-400' : 'text-slate-600 group-focus-within:text-cyan-500'}`} />
+                </button>
                 <input 
-                  type="password" 
+                  type={showPassword ? "text" : "password"} 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••" 
@@ -134,16 +149,31 @@ export default function SignIn() {
 
             <button 
               type="button"
-              disabled={!isFormValid}
-              onClick={() => signIn("credentials", { email, password, callbackUrl: "/" })}
+              disabled={!isFormValid || isLoading}
+              onClick={async () => {
+                setIsLoading(true);
+                setErrorMessage('');
+                try {
+                  const res = await signIn("credentials", { email, password, redirect: false });
+                  if (res?.error) {
+                    setErrorMessage("Incorrect password or email");
+                  } else if (res?.ok) {
+                    window.location.href = "/";
+                  }
+                } catch (err) {
+                  setErrorMessage("Incorrect password or email");
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
               className={`w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all group mt-8 font-black ${
-                isFormValid 
+                isFormValid && !isLoading
                   ? 'bg-cyan-500 text-[#000d14] hover:bg-cyan-400 hover:-translate-y-1 shadow-[0_15px_40px_rgba(6,182,212,0.3)]' 
                   : 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/5'
               }`}
             >
-              SIGN IN
-              <Zap className={`w-5 h-5 transition-transform ${isFormValid ? 'group-hover:scale-110' : ''}`} />
+              {isLoading ? 'SIGNING IN...' : 'SIGN IN'}
+              <Zap className={`w-5 h-5 transition-transform ${(isFormValid && !isLoading) ? 'group-hover:scale-110' : ''}`} />
             </button>
 
             <div className="mt-8 text-center">

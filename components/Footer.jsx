@@ -6,8 +6,14 @@ import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaXTwitter, FaInstagram } from "react-icons/fa6";
 import { ArrowRight, Mail } from 'lucide-react';
 
+import { usePathname } from 'next/navigation';
+
 const Footer = () => {
+  const pathname = usePathname();
+  const isAdminPage = pathname === '/admin';
   const currentYear = new Date().getFullYear();
+
+  if (isAdminPage) return null;
 
   return (
     <footer className="relative bg-[#000d14] pt-24 pb-12 overflow-hidden border-t-2 border-cyan-500/10">
@@ -111,11 +117,11 @@ const Footer = () => {
             </div>
           </div>
           <div className="flex items-center gap-8">
-            <Link href="mailto:support@macroshift.com" className="flex items-center gap-3 text-[10px] font-black text-slate-400 hover:text-cyan-400 transition-all tracking-[0.2em] group">
+            <Link href="mailto:macroshift.noreply@gmail.com" className="flex items-center gap-3 text-[10px] font-black text-slate-400 hover:text-cyan-400 transition-all tracking-[0.2em] group">
               <div className="p-2 bg-white/5 rounded-lg group-hover:bg-cyan-500/10 transition-colors">
                 <Mail size={14} className="text-cyan-500" />
               </div>
-              SUPPORT@MACROSHIFT.COM
+              MACROSHIFT.NOREPLY@GMAIL.COM
             </Link>
           </div>
         </div>

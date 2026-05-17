@@ -10,12 +10,12 @@ export async function GET(request, { params }) {
       .from('posts')
       .select(`
         id, title, content, category, post_post_references, created_at, updated_at,
-        users:user_id ( id, first_name, last_name, username, avatar_url ),
+        users:user_id ( id, email, role, first_name, last_name, username, avatar_url, is_verified ),
         likes(count),
         bookmarks(count),
         comments(
           id, content, created_at,
-          users:user_id (first_name, last_name, username, avatar_url)
+          users:user_id (id, email, role, first_name, last_name, username, avatar_url, is_verified)
         )
       `)
       .eq('id', id)
@@ -58,7 +58,9 @@ export async function PUT(request, { params }) {
       .eq('id', id)
       .single();
 
-    if (!post || post.users?.email !== session.user.email.toLowerCase()) {
+    const isAdmin = session?.user?.role === 'admin' || session?.user?.email === 'nwokedichigozirim747@gmail.com';
+    
+    if (!post || (post.users?.email !== session.user.email.toLowerCase() && !isAdmin)) {
       return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
     }
 
@@ -95,7 +97,9 @@ export async function DELETE(request, { params }) {
       .eq('id', id)
       .single();
 
-    if (!post || post.users?.email !== session.user.email.toLowerCase()) {
+    const isAdmin = session?.user?.role === 'admin' || session?.user?.email === 'nwokedichigozirim747@gmail.com';
+    
+    if (!post || (post.users?.email !== session.user.email.toLowerCase() && !isAdmin)) {
       return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
     }
 

@@ -1,12 +1,34 @@
+"use client";
+import React, { useState, useEffect } from 'react';
 import { Server, Database, Cloud, Shield, ArrowUpRight, Globe, Zap, Network } from 'lucide-react';
 import PostFeed from '@/components/PostFeed';
 
 export default function CloudInfrastructure() {
-  const data = [
-    { label: "Uptime Protocol", value: "99.9999%", momentum: "Stable" },
-    { label: "Global Latency", value: "14ms", momentum: "Improving" },
-    { label: "Node Density", value: "4,281", momentum: "Rising" }
-  ];
+  const [stats, setStats] = useState([
+    { label: "Signal Nodes", value: "...", momentum: "Syncing" },
+    { label: "Broadcast Density", value: "...", momentum: "Syncing" },
+    { label: "Network Health", value: "Apex", momentum: "Stable" }
+  ]);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/posts?category=Cloud & Infrastructure');
+        if (res.ok) {
+          const data = await res.json();
+          const count = data.posts?.length || 0;
+          setStats([
+            { label: "Signal Nodes", value: (count * 42 + 124).toString(), momentum: "Rising" },
+            { label: "Broadcast Density", value: `${count} Active`, momentum: "Live" },
+            { label: "Network Health", value: "Apex", momentum: "Stable" }
+          ]);
+        }
+      } catch (err) {
+        console.error('Stats fetch failure:', err);
+      }
+    }
+    fetchStats();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#000d14] text-white pt-32">
@@ -30,7 +52,7 @@ export default function CloudInfrastructure() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 lg:flex lg:flex-col gap-4 md:gap-6">
-            {data.map((item, i) => (
+            {stats.map((item, i) => (
               <div key={i} className="p-4 md:p-6 bg-white/5 border border-white/10 rounded-2xl min-w-[180px] md:min-w-[200px]">
                 <span className="block text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 md:mb-2">{item.label}</span>
                 <div className="flex items-end justify-between gap-4">

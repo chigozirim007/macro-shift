@@ -7,7 +7,9 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
+    const interests = searchParams.get('interests')?.split(',');
     const userId = searchParams.get('user_id');
+    const searchTerm = searchParams.get('query');
 
     let query = supabase
       .from('posts')
@@ -20,6 +22,8 @@ export async function GET(request) {
         created_at,
         users:user_id (
           id,
+          email,
+          role,
           first_name,
           last_name,
           username,
@@ -34,12 +38,27 @@ export async function GET(request) {
       `)
       .order('created_at', { ascending: false });
 
-    if (category) {
+    if (category && category !== 'All') {
       query = query.ilike('category', `%${category}%`);
+    } else if (interests && interests.length > 0) {
+      // Filter by interests (case-insensitive mapped to the categories)
+      const mappedInterests = interests.map(i => {
+        if (i === 'ai') return 'AI & Machine Learning';
+        if (i === 'cloud') return 'Cloud & Infrastructure';
+        if (i === 'dev') return 'Software Development';
+        if (i === 'hardware') return 'Emerging Hardware';
+        if (i === 'trends') return 'Global Trends';
+        return i;
+      });
+      query = query.in('category', mappedInterests);
     }
 
     if (userId) {
       query = query.eq('user_id', userId);
+    }
+
+    if (searchTerm) {
+      query = query.or(`title.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%`);
     }
 
     const { data: posts, error } = await query;

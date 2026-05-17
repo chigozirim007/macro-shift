@@ -41,12 +41,16 @@ export default function GetStarted() {
             The era of technological noise is over. Join 40,000+ industry leaders who decipher the future with high-fidelity intelligence. 
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <button className="px-10 py-5 bg-cyan-500 text-[#000d14] font-black rounded-2xl hover:bg-cyan-400 hover:-translate-y-1 transition-all shadow-[0_15px_40px_rgba(6,182,212,0.4)]">
-              INITIALIZE TERMINAL ACCESS
-            </button>
-            <button className="px-10 py-5 bg-white/5 border border-white/20 text-white font-black rounded-2xl hover:bg-white/10 transition-all backdrop-blur-xl">
-              EXPLORE PUBLIC NEWS
-            </button>
+            <Link href="/signup" className="w-full sm:w-auto">
+              <button className="w-full px-10 py-5 bg-cyan-500 text-[#000d14] font-black rounded-2xl hover:bg-cyan-400 hover:-translate-y-1 transition-all shadow-[0_15px_40px_rgba(6,182,212,0.4)]">
+                INITIALIZE TERMINAL ACCESS
+              </button>
+            </Link>
+            <Link href="/" className="w-full sm:w-auto">
+              <button className="w-full px-10 py-5 bg-white/5 border border-white/20 text-white font-black rounded-2xl hover:bg-white/10 transition-all backdrop-blur-xl">
+                EXPLORE PUBLIC NEWS
+              </button>
+            </Link>
           </div>
         </div>
 
@@ -109,11 +113,11 @@ export default function GetStarted() {
                 </div>
                 <ul className="space-y-4">
                   {[
-                    'Proprietary Neural Audits', 
-                    'Silicon Roadmap Data', 
-                    'Advanced Search Filtering', 
-                    'API Terminal Access',
-                    'Strategic Consulting'
+                    'Inside Information & Market Whispers', 
+                    'Real-time Decentralized Network Access', 
+                    'Unrestricted Apex Level Clearance', 
+                    'Direct 1-on-1 Strategic Consulting',
+                    'Priority Terminal Support'
                   ].map((feature, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm font-bold">
                       <CheckCircle2 size={16} className="text-[#000d14]" />
