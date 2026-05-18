@@ -1,4 +1,5 @@
-import React from 'react';
+"use client";
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   TrendingUp, 
@@ -15,32 +16,34 @@ import {
 import PostFeed from '@/components/PostFeed';
 
 export default function TrendsPage() {
-  const trends = [
-    {
-      title: "Decentralized Physical Infrastructure (DePIN)",
-      category: "Infrastructure",
-      status: "Hyper-Growth",
-      description: "Community-owned hardware networks for wireless, compute, and energy are disrupting traditional centralized utility monopolies.",
-      metric: "+142% MoM",
-      icon: <Layers className="w-6 h-6" />
-    },
-    {
-      title: "The Sovereign Tech Stack",
-      category: "Global Policy",
-      status: "Strategic",
-      description: "Nations are increasingly mandating localized data residency and proprietary silicon as 'digital borders' begin to materialize.",
-      metric: "High Priority",
-      icon: <ShieldCheck className="w-6 h-6" />
-    },
-    {
-      title: "Predictive Economic Engines",
-      category: "Financial Tech",
-      status: "Emerging",
-      description: "AI models trained on real-time supply chain and logistics data are replacing lagging indicators for economic forecasting.",
-      metric: "Early Momentum",
-      icon: <TrendingUp className="w-6 h-6" />
+  const [trends, setTrends] = useState([]);
+  const [isLoadingTrends, setIsLoadingTrends] = useState(true);
+
+  useEffect(() => {
+    async function fetchTrends() {
+      try {
+        const res = await fetch('/api/posts?category=Trends');
+        if (res.ok) {
+          const data = await res.json();
+          const highlights = (data.posts || []).slice(0, 3).map(post => ({
+            title: post.title,
+            category: post.category,
+            status: "Active",
+            description: post.content.substring(0, 150) + '...',
+            metric: "Live Signal",
+            icon: <Layers className="w-6 h-6" />,
+            id: post.id
+          }));
+          setTrends(highlights);
+        }
+      } catch (err) {
+        console.error('Failed to fetch Trends highlights:', err);
+      } finally {
+        setIsLoadingTrends(false);
+      }
     }
-  ];
+    fetchTrends();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#000d14] text-slate-300 pt-32 pb-24">
@@ -52,34 +55,33 @@ export default function TrendsPage() {
 
       <div className="relative z-10 container mx-auto px-6">
         
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 md:mb-16">
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="p-3 md:p-4 bg-blue-500/10 border border-blue-500/20 rounded-[1.5rem] md:rounded-[2rem] text-blue-400 shrink-0">
-              <TrendingUp size={28} className="md:w-8 md:h-8" />
+        {/* Header Section - Authority Broadcast */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
+          <div className="flex items-center gap-5 md:gap-8">
+            <div className="p-4 md:p-5 bg-blue-600 text-white rounded-[1.5rem] md:rounded-[2.5rem] shadow-[0_0_30px_rgba(37,99,235,0.3)] shrink-0">
+              <TrendingUp size={32} className="md:w-10 md:h-10" />
             </div>
             <div>
-              <h1 className="text-3xl md:text-6xl font-black text-white tracking-tighter uppercase italic leading-none">
-                Global <span className="text-blue-400">Trends</span>
+              <h1 className="text-3xl md:text-7xl font-black text-white tracking-tighter uppercase italic leading-none">
+                Global <span className="text-blue-500">Trends</span>
               </h1>
-              <p className="text-[9px] md:text-xs uppercase tracking-[0.4em] font-bold text-slate-500 mt-2 flex items-center gap-2">
-                <Globe size={12} className="text-blue-500" />
-                Strategic Momentum Audit
+              <p className="text-[10px] md:text-sm uppercase tracking-[0.4em] font-black text-blue-500/50 mt-3 md:mt-4 flex items-center gap-2">
+                <Globe size={14} className="animate-spin-slow" /> Strategic Momentum Audit
               </p>
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-3 md:gap-4">
-            <div className="px-4 md:px-6 py-3 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl backdrop-blur-md">
-              <span className="block text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Global Sentiment</span>
-              <span className="text-xs md:text-base text-white font-bold flex items-center gap-2 uppercase tracking-tighter">
-                BULLISH <Activity size={14} className="text-green-500" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="px-6 py-4 bg-white/[0.03] border border-white/5 rounded-2xl md:rounded-[2rem] backdrop-blur-3xl shadow-xl">
+              <span className="block text-[8px] md:text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2">Global Sentiment</span>
+              <span className="text-xs md:text-lg text-white font-black flex items-center gap-3 uppercase italic tracking-tighter">
+                BULLISH <Activity size={16} className="text-green-500 animate-pulse" />
               </span>
             </div>
-            <div className="px-4 md:px-6 py-3 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl backdrop-blur-md">
-              <span className="block text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Volatility Index</span>
-              <span className="text-xs md:text-base text-white font-bold flex items-center gap-2 uppercase tracking-tighter">
-                STABLE <Compass size={14} className="text-cyan-500" />
+            <div className="px-6 py-4 bg-white/[0.03] border border-white/5 rounded-2xl md:rounded-[2rem] backdrop-blur-3xl shadow-xl">
+              <span className="block text-[8px] md:text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-2">Volatility Index</span>
+              <span className="text-xs md:text-lg text-white font-black flex items-center gap-3 uppercase italic tracking-tighter">
+                STABLE <Compass size={16} className="text-cyan-500" />
               </span>
             </div>
           </div>

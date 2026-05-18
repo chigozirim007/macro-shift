@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { FaGoogle, FaGithub } from 'react-icons/fa';
 import { signIn } from "next-auth/react";
+import ErrorModal from '@/components/ErrorModal';
 
 const STEPS = [
   { num: 1, label: 'Personal' },
@@ -222,13 +223,11 @@ export default function SignUp() {
       {/* Form Container */}
       <div className="w-full max-w-lg bg-[#0a111a] border border-white/10 rounded-[2rem] p-6 md:p-10 shadow-2xl">
 
-        {/* Global Error */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2.5">
-            <AlertCircle size={14} className="text-red-400 shrink-0" />
-            <p className="text-xs text-red-400 font-bold">{error}</p>
-          </div>
-        )}
+        {/* Global Error Modal */}
+        <ErrorModal 
+          message={error} 
+          onClose={() => setError('')} 
+        />
 
         {/* ── STEP 1: Personal ── */}
         {step === 1 && (
@@ -378,18 +377,27 @@ export default function SignUp() {
               <div className="space-y-1.5">
                 <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative">
-                  <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} placeholder="Min. 8 characters"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-cyan-500/50 transition-all placeholder:text-slate-700" />
-                  <button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-cyan-400 transition-colors">
-                    {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-1 hover:bg-white/5 rounded-md transition-all"
+                  >
+                    <Lock className={`w-3.5 h-3.5 transition-colors ${showPassword ? 'text-cyan-400' : 'text-slate-600'}`} />
                   </button>
+                  <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} placeholder="Min. 8 characters"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none focus:border-cyan-500/50 transition-all placeholder:text-slate-700" />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Confirm</label>
-                <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Repeat password"
-                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-xs text-white focus:outline-none transition-all placeholder:text-slate-700 ${
-                    formData.confirmPassword && formData.password !== formData.confirmPassword ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-cyan-500/50'}`} />
+                <div className="relative">
+                   <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                    <Lock className="w-3.5 h-3.5 text-slate-600" />
+                  </div>
+                  <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Repeat password"
+                    className={`w-full bg-white/5 border rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none transition-all placeholder:text-slate-700 ${
+                      formData.confirmPassword && formData.password !== formData.confirmPassword ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-cyan-500/50'}`} />
+                </div>
               </div>
             </div>
             {formData.confirmPassword && formData.password !== formData.confirmPassword && (

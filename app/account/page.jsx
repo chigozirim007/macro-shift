@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
-import { Shield, Zap, Bookmark, Settings, ArrowRight, Clock, Search, Check, Globe, Heart, MessageCircle, Repeat2, Share, Loader2 } from 'lucide-react';
+import { Shield, ShieldCheck, CheckCircle2, Zap, Bookmark, Settings, ArrowRight, Clock, Search, Check, Globe, Heart, MessageCircle, Repeat2, Share, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 function timeAgo(dateString) {
@@ -114,9 +114,9 @@ export default function AccountPage() {
       <div className="fixed top-[64px] md:top-[104px] w-full z-40 bg-[#000d14]/95 backdrop-blur-3xl border-b border-cyan-500/10 py-3">
         <div className="mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between">
           <div className="flex items-center gap-3 md:gap-6">
-            <Link href="/" className="p-1.5 md:p-2 hover:bg-white/10 rounded-full transition-colors">
+            <button onClick={() => router.back()} className="p-1.5 md:p-2 hover:bg-white/10 rounded-full transition-colors">
               <ArrowRight className="w-4 h-4 md:w-5 md:h-5 rotate-180 text-cyan-400" />
-            </Link>
+            </button>
             <div className="truncate max-w-[150px] md:max-w-none">
               <h2 className="text-xs md:text-sm font-black text-white uppercase italic tracking-wider truncate">{user.name}</h2>
               <p className="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest">{posts.length} Strategic Posts</p>
@@ -154,10 +154,31 @@ export default function AccountPage() {
             <div className="flex flex-col md:flex-row md:items-center gap-2">
               <h1 className="text-xl md:text-3xl font-black text-white tracking-tighter uppercase italic flex items-center justify-center md:justify-start gap-2">
                 {user.name}
-                <div className="w-4 h-4 md:w-5 md:h-5 bg-cyan-500 rounded-full flex items-center justify-center">
-                   <Check size={10} className="text-[#000d14] md:w-3 md:h-3 stroke-[4]" />
-                </div>
-                <span className="text-[10px] md:text-xs font-bold text-cyan-500 normal-case italic tracking-normal ml-1">Verified Strategist</span>
+                
+                {/* APEX IDENTITY (ADMIN) - DUAL MARK SYSTEM */}
+                {(user.role === 'admin' || user.email === 'nwokedichigozirim747@gmail.com') && (
+                  <div className="flex items-center gap-2">
+                    <div className="relative group">
+                      <div className="absolute -inset-1 bg-cyan-500/20 rounded-full blur opacity-100 transition-all" />
+                      <ShieldCheck size={24} className="text-cyan-400 relative" fill="currentColor" fillOpacity={0.1} />
+                    </div>
+                    <div className="relative group">
+                      <div className="absolute -inset-1 bg-amber-500/30 rounded-full blur-[4px] animate-pulse" />
+                      <CheckCircle2 size={22} className="text-amber-500 relative drop-shadow-[0_0_12px_rgba(245,158,11,0.8)]" fill="currentColor" fillOpacity={0.2} />
+                    </div>
+                  </div>
+                )}
+
+                {/* STANDARD VERIFICATION - VERIFIED STRATEGISTS */}
+                {user.is_verified && user.role !== 'admin' && user.email !== 'nwokedichigozirim747@gmail.com' && (
+                  <div className="p-1 bg-cyan-500/10 rounded-full">
+                    <CheckCircle2 size={20} className="text-cyan-500" fill="currentColor" fillOpacity={0.1} />
+                  </div>
+                )}
+                
+                <span className="text-[10px] md:text-xs font-bold text-cyan-500 normal-case italic tracking-normal ml-1">
+                  {(user.role === 'admin' || user.email === 'nwokedichigozirim747@gmail.com') ? 'Lead Administrator' : 'Verified Strategist'}
+                </span>
               </h1>
             </div>
             <p className="text-slate-500 font-bold tracking-widest text-[10px] md:text-xs uppercase">@{user.username}</p>
@@ -207,11 +228,13 @@ export default function AccountPage() {
               <div className="space-y-4">
                 <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
                    <p className="text-[8px] font-black text-cyan-500 uppercase tracking-widest mb-1">Security Tier</p>
-                   <p className="text-sm font-bold text-white italic uppercase tracking-tighter">Level 1 Protocol</p>
+                   <p className="text-sm font-bold text-white italic uppercase tracking-tighter">
+                     {(user.role === 'admin' || user.email === 'nwokedichigozirim747@gmail.com') ? 'Apex Protocol (Level 5)' : (user.is_verified ? 'Verified Protocol (Level 2)' : 'Standard Protocol (Level 1)')}
+                   </p>
                 </div>
                 <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                   <p className="text-[8px] font-black text-cyan-500 uppercase tracking-widest mb-1">Last Sync</p>
-                   <p className="text-sm font-bold text-white">Live</p>
+                   <p className="text-[8px] font-black text-cyan-500 uppercase tracking-widest mb-1">Network Status</p>
+                   <p className="text-sm font-bold text-white uppercase italic tracking-tighter">Active Broadcast</p>
                 </div>
               </div>
             </div>
@@ -257,7 +280,27 @@ export default function AccountPage() {
                           <div className="flex items-center justify-between">
                             <h4 className="text-xs md:text-sm font-black text-white uppercase italic tracking-wider flex items-center gap-2">
                               {post.users?.first_name} {post.users?.last_name}
-                              {post.users?.is_verified && <Shield className="w-3 h-3 text-cyan-400 fill-cyan-400/20" />}
+                              
+                              {/* APEX IDENTITY (ADMIN) - DUAL MARK SYSTEM */}
+                              {(post.users?.role === 'admin' || post.users?.email === 'nwokedichigozirim747@gmail.com') && (
+                                <div className="flex items-center gap-1">
+                                  <div className="relative group">
+                                    <div className="absolute -inset-1 bg-cyan-500/20 rounded-full blur opacity-100 transition-all" />
+                                    <ShieldCheck size={14} className="text-cyan-400 relative" fill="currentColor" fillOpacity={0.1} />
+                                  </div>
+                                  <div className="relative group">
+                                    <div className="absolute -inset-1 bg-amber-500/30 rounded-full blur-[4px] animate-pulse" />
+                                    <CheckCircle2 size={13} className="text-amber-500 relative drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]" fill="currentColor" fillOpacity={0.2} />
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* STANDARD VERIFICATION - VERIFIED STRATEGISTS */}
+                              {post.users?.is_verified && post.users?.role !== 'admin' && post.users?.email !== 'nwokedichigozirim747@gmail.com' && (
+                                <div className="p-0.5 bg-cyan-500/10 rounded-full">
+                                  <CheckCircle2 size={13} className="text-cyan-500" fill="currentColor" fillOpacity={0.1} />
+                                </div>
+                              )}
                             </h4>
                           </div>
                           <p className="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">{timeAgo(post.created_at)} • {post.category}</p>
