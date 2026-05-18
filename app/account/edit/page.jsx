@@ -420,6 +420,20 @@ export default function EditProfilePage() {
                   />
                 </div>
               </div>
+              <div className="space-y-3 md:col-span-2 md:w-1/2 md:ml-auto md:pl-5">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] ml-1">Confirm Access Key</label>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-cyan-500 transition-colors" />
+                  <input 
+                    type={showNewPassword ? "text" : "password"} 
+                    className={`w-full bg-white/5 border rounded-2xl py-4 pl-12 pr-6 text-white transition-all font-bold ${
+                      formData.confirm_password && formData.new_password !== formData.confirm_password ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-cyan-500'
+                    }`}
+                    value={formData.confirm_password}
+                    onChange={(e) => setFormData({...formData, confirm_password: e.target.value})}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

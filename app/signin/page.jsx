@@ -144,7 +144,7 @@ export default function SignIn() {
                 <input type="checkbox" className="w-3 h-3 bg-white/5 border-white/10 rounded accent-cyan-500" />
                 Remember Me
               </label>
-              <Link href="#" className="hover:text-cyan-500 transition-colors">Forgot Password?</Link>
+              <Link href="/forgot-password" className="hover:text-cyan-500 transition-colors">Forgot Password?</Link>
             </div>
 
             <button 
@@ -155,13 +155,31 @@ export default function SignIn() {
                 setErrorMessage('');
                 try {
                   const res = await signIn("credentials", { email, password, redirect: false });
-                  if (res?.error) {
-                    setErrorMessage("Incorrect password or email");
-                  } else if (res?.ok) {
+
+                  if (!res) {
+                    setErrorMessage("Something went wrong. Please try again.");
+                    return;
+                  }
+
+                  if (res.error === "EMAIL_NOT_VERIFIED") {
+                    setErrorMessage("Your email is not verified. Please check your inbox for the verification code.");
+                    return;
+                  }
+
+                  if (res.error) {
+                    setErrorMessage("Incorrect email or password. Please try again.");
+                    return;
+                  }
+
+                  // NextAuth v5: success is indicated by res.ok OR res.url being set
+                  if (res.ok || res.url) {
                     window.location.href = "/";
+                  } else {
+                    setErrorMessage("Sign in failed. Please try again.");
                   }
                 } catch (err) {
-                  setErrorMessage("Incorrect password or email");
+                  console.error("[SIGNIN] Unexpected error:", err);
+                  setErrorMessage("An unexpected error occurred. Please try again.");
                 } finally {
                   setIsLoading(false);
                 }

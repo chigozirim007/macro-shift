@@ -9,10 +9,11 @@ export async function GET(request, { params }) {
     const { data: post, error } = await supabase
       .from('posts')
       .select(`
-        id, title, content, category, post_post_references, created_at, updated_at,
+        id, title, content, category, post_post_references, created_at, updated_at, views_count,
         users:user_id ( id, email, role, first_name, last_name, username, avatar_url, is_verified ),
         likes(count),
         bookmarks(count),
+        reposts(count),
         comments(
           id, content, created_at,
           users:user_id (id, email, role, first_name, last_name, username, avatar_url, is_verified)
@@ -25,14 +26,27 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Post not found.' }, { status: 404 });
     }
 
+    // Increment view count (fire-and-forget — don't block the response)
+    supabase
+      .from('posts')
+      .update({ views_count: (post.views_count || 0) + 1 })
+      .eq('id', id)
+      .then(() => {});
+
     return NextResponse.json({
       post: {
         ...post,
         likes_count: post.likes?.[0]?.count ?? 0,
         bookmarks_count: post.bookmarks?.[0]?.count ?? 0,
+        reposts_count: post.reposts?.[0]?.count ?? 0,
         likes: undefined,
         bookmarks: undefined,
+        reposts: undefined,
       }
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=60',
+      },
     });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });

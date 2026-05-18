@@ -36,7 +36,8 @@ export async function GET(request) {
         comments(count),
         views_count
       `)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(20); // prevent full-table scans — paginate if needed
 
     if (category && category !== 'All') {
       query = query.ilike('category', `%${category}%`);
@@ -82,7 +83,11 @@ export async function GET(request) {
       comments: undefined,
     }));
 
-    return NextResponse.json({ posts: normalized });
+    return NextResponse.json({ posts: normalized }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
+      },
+    });
   } catch (error) {
     console.error('GET /api/posts error:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });

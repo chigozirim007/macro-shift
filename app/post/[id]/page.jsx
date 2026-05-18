@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 import { 
   ArrowLeft, 
   MoreVertical, 
@@ -35,9 +36,60 @@ function timeAgo(dateString) {
 export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const [post, setPost] = useState(null);
   const [error, setError] = useState(null);
+  
+  const [commentText, setCommentText] = useState('');
+  const [isPostingComment, setIsPostingComment] = useState(false);
+  const commentInputRef = useRef(null);
+
+  const toggleLike = async () => {
+    if (!session) return router.push('/signin');
+    setPost(prev => ({ ...prev, liked: !prev.liked, likes_count: prev.liked ? prev.likes_count - 1 : prev.likes_count + 1 }));
+    try { await fetch(`/api/posts/${post.id}/like`, { method: 'POST' }); } catch {
+      setPost(prev => ({ ...prev, liked: !prev.liked, likes_count: prev.liked ? prev.likes_count - 1 : prev.likes_count + 1 }));
+    }
+  };
+
+  const toggleBookmark = async () => {
+    if (!session) return router.push('/signin');
+    setPost(prev => ({ ...prev, bookmarked: !prev.bookmarked }));
+    try { await fetch(`/api/posts/${post.id}/bookmark`, { method: 'POST' }); } catch {
+      setPost(prev => ({ ...prev, bookmarked: !prev.bookmarked }));
+    }
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert('Link copied to clipboard!');
+  };
+
+  const handlePostComment = async () => {
+    if (!session) return router.push('/signin');
+    if (!commentText.trim()) return;
+    setIsPostingComment(true);
+    try {
+      const res = await fetch(`/api/posts/${post.id}/comment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: commentText })
+      });
+      const data = await res.json();
+      if (res.ok && data.comment) {
+        setPost(prev => ({
+          ...prev,
+          comments: [data.comment, ...(prev.comments || [])]
+        }));
+        setCommentText('');
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsPostingComment(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchPost() {
@@ -174,11 +226,11 @@ export default function PostDetailPage() {
           </div>
 
           <div className="mt-8 flex justify-between text-slate-500 max-w-xl mx-auto px-4">
-            <button className="hover:text-cyan-400 transition-all transform hover:scale-110"><MessageCircle size={24} /></button>
+            <button onClick={() => commentInputRef.current?.focus()} className="hover:text-cyan-400 transition-all transform hover:scale-110"><MessageCircle size={24} /></button>
             <button className="hover:text-green-400 transition-all transform hover:scale-110"><Repeat2 size={24} /></button>
-            <button className="hover:text-pink-500 transition-all transform hover:scale-110"><Heart size={24} /></button>
-            <button className="hover:text-cyan-400 transition-all transform hover:scale-110"><Bookmark size={24} /></button>
-            <button className="hover:text-white transition-all transform hover:scale-110"><Share size={24} /></button>
+            <button onClick={toggleLike} className={`transition-all transform hover:scale-110 ${post.liked ? 'text-pink-500' : 'hover:text-pink-500'}`}><Heart size={24} fill={post.liked ? 'currentColor' : 'none'} /></button>
+            <button onClick={toggleBookmark} className={`transition-all transform hover:scale-110 ${post.bookmarked ? 'text-cyan-400' : 'hover:text-cyan-400'}`}><Bookmark size={24} fill={post.bookmarked ? 'currentColor' : 'none'} /></button>
+            <button onClick={handleShare} className="hover:text-white transition-all transform hover:scale-110"><Share size={24} /></button>
           </div>
         </div>
 
@@ -190,12 +242,20 @@ export default function PostDetailPage() {
                <Zap size={20} className="text-cyan-400" />
             </div>
             <input 
+              ref={commentInputRef}
               type="text" 
-              placeholder="Contribute to the strategic shift..." 
-              className="flex-grow bg-transparent text-white focus:outline-none placeholder:text-slate-700 text-sm md:text-base"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handlePostComment()}
+              placeholder={session ? "Contribute to the strategic shift..." : "Sign in to contribute..."} 
+              disabled={!session || isPostingComment}
+              className="flex-grow bg-transparent text-white focus:outline-none placeholder:text-slate-700 text-sm md:text-base disabled:opacity-50"
             />
-            <button className="px-6 py-2 bg-cyan-500 text-[#000d14] font-black rounded-lg text-[10px] uppercase tracking-widest hover:bg-cyan-400 transition-all">
-              Reply
+            <button 
+              onClick={handlePostComment}
+              disabled={!session || isPostingComment || !commentText.trim()}
+              className="px-6 py-2 bg-cyan-500 text-[#000d14] font-black rounded-lg text-[10px] uppercase tracking-widest hover:bg-cyan-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              {isPostingComment ? 'Posting...' : 'Reply'}
             </button>
           </div>
 

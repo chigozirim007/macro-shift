@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Trash2, Clock, Share2, Bookmark, MessageSquare, Heart, Edit3, Loader2, AlertCircle, ShieldCheck, Repeat2, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { PostSkeleton } from './Skeleton';
 import ErrorModal from '@/components/ErrorModal';
@@ -16,6 +17,7 @@ function timeAgo(dateString) {
 }
 
 export default function PostFeed({ activeCategory = null }) {
+  const router = useRouter();
   const { data: session } = useSession();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -95,7 +97,7 @@ export default function PostFeed({ activeCategory = null }) {
   const authorAvatar = (post) => {
     if (post.users?.avatar_url) return post.users.avatar_url;
     const name = authorName(post);
-    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=06b6d4&color=fff`;
   };
 
   const isAuthor = (post) => session?.user?.email && post.users?.email === session.user.email;
@@ -220,11 +222,16 @@ export default function PostFeed({ activeCategory = null }) {
                           <Heart size={14} fill={post.liked ? 'currentColor' : 'none'} />
                           {post.likes_count}
                         </div>
-                        <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                          className="text-slate-500 hover:text-white cursor-pointer transition-colors">
+                        <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/post/${post.id}`); }}
+                          className="text-slate-500 hover:text-cyan-400 cursor-pointer transition-colors">
                           <MessageSquare size={14} />
                         </div>
-                        <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        <div onClick={(e) => { 
+                            e.preventDefault(); 
+                            e.stopPropagation(); 
+                            navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+                            alert('Link copied to clipboard!');
+                          }}
                           className="text-slate-500 hover:text-white cursor-pointer transition-colors">
                           <Share2 size={14} />
                         </div>
@@ -253,11 +260,13 @@ export default function PostFeed({ activeCategory = null }) {
           </div>
         )}
 
-        <div className="mt-16 flex justify-center">
-          <button className="px-10 py-4 bg-transparent border-2 border-white/10 rounded-2xl text-xs font-black text-white uppercase tracking-[0.3em] hover:border-cyan-500 transition-all">
-            LOAD MORE
-          </button>
-        </div>
+        {posts.length >= 10 && (
+          <div className="mt-16 flex justify-center">
+            <button className="px-10 py-4 bg-transparent border-2 border-white/10 rounded-2xl text-xs font-black text-white uppercase tracking-[0.3em] hover:border-cyan-500 transition-all">
+              LOAD MORE
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
