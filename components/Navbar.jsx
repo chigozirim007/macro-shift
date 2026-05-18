@@ -64,20 +64,20 @@ const Navbar = () => {
                     </Link>
 
                     {/* Desktop Navigation - Authority Stream */}
-                    <div className="hidden sm:flex items-center space-x-4 md:space-x-8">
+                    <div className="hidden xl:flex items-center gap-4 xl:gap-8">
                         {session && isAdmin && (
-                            <Link href="/admin" className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-[#000d14] border border-cyan-400 rounded-xl hover:bg-cyan-400 transition-all group/admin shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+                            <Link href="/admin" className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-[#000d14] border border-cyan-400 rounded-xl hover:bg-cyan-400 transition-all group/admin shadow-[0_0_20px_rgba(6,182,212,0.4)] whitespace-nowrap">
                                 <ShieldCheck size={16} />
                                 <span className="text-[10px] font-black uppercase tracking-widest">Oversight Console</span>
                             </Link>
                         )}
                         {!session && (
-                            <div className="hidden lg:flex items-center space-x-8">
+                            <div className="flex items-center gap-6">
                                 {['AI & Machine Learning', 'Trends', 'Cloud & Infrastructure', 'Software Development', 'Emerging Hardware', 'Contact Us'].map((item) => (
                                     <Link
                                         key={item}
                                         href={`/${item.toLowerCase().replace(/ /g, '-')}`}
-                                        className="relative text-xs font-bold uppercase tracking-widest text-slate-300 hover:text-white transition-all duration-300 group"
+                                        className="relative text-xs font-bold uppercase tracking-widest text-slate-300 hover:text-white transition-all duration-300 group whitespace-nowrap"
                                     >
                                         {item}
                                         <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-500 group-hover:w-full" />
@@ -88,7 +88,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Actions Area */}
-                    <div className="hidden md:flex items-center space-x-6">
+                    <div className="hidden xl:flex items-center gap-6">
                         <form 
                             onSubmit={(e) => {
                                 e.preventDefault();
@@ -101,7 +101,7 @@ const Navbar = () => {
                                 name="search"
                                 type="text"
                                 placeholder="Search the shift..."
-                                className="pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white focus:outline-none focus:border-cyan-500/50 w-32 lg:w-48 transition-all"
+                                className="pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white focus:outline-none focus:border-cyan-500/50 w-32 xl:w-48 transition-all"
                             />
                         </form>
 
@@ -149,7 +149,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Mobile Toggle */}
-                    <div className="flex sm:hidden items-center gap-4">
+                    <div className="flex xl:hidden items-center gap-4">
                          {session && (
                              <Link href="/account" className="p-2 bg-white/5 border border-white/10 rounded-full">
                                 <img 

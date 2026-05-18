@@ -15,7 +15,7 @@ export default async function Home() {
   return (
     <div className="relative min-h-screen bg-[#000d14]">
       {/* Hero Section with Cinematic Background */}
-      <section className="relative min-h-screen md:h-screen py-32 md:py-0 flex flex-col items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen md:min-h-[100dvh] pt-32 md:pt-40 pb-20 flex flex-col items-center justify-center overflow-hidden">
         {/* Background Video */}
         <video
           autoPlay
