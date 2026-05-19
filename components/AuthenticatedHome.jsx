@@ -253,7 +253,7 @@ export default function AuthenticatedHome({ session }) {
   const displayClearance = isAdmin ? 'Level 5 (Apex)' : (user?.is_verified ? 'Level 2 (Verified)' : 'Level 1 (Standard)');
 
   return (
-    <div className="min-h-screen bg-[#000d14] text-white flex flex-col max-w-[1700px] mx-auto px-4 md:px-10 lg:px-16 pb-20 pt-24 md:pt-32 relative overflow-hidden">
+    <div className="min-h-screen bg-[#000d14] text-white flex flex-col max-w-[1700px] mx-auto px-4 md:px-10 lg:px-16 pb-20 pt-28 md:pt-32 relative overflow-hidden">
       <div className="fixed inset-0 bg-grid-terminal pointer-events-none" />
       <div className="fixed inset-0 animate-scan h-20 w-full pointer-events-none z-10" />
 
@@ -265,13 +265,13 @@ export default function AuthenticatedHome({ session }) {
           <div className="flex flex-row items-center justify-between gap-4 mb-4 md:mb-8">
             <div className="space-y-1">
               <span className="text-[8px] md:text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] block">Operational Feed</span>
-              <h2 className="text-xl md:text-4xl font-black text-white uppercase italic tracking-tighter leading-none">Global <span className="text-cyan-400">Signals</span></h2>
+              <h2 className="text-lg md:text-4xl font-black text-white uppercase italic tracking-tighter leading-none">Global <span className="text-cyan-400">Signals</span></h2>
             </div>
             <button 
               onClick={() => setIsPostModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-4 md:px-8 py-3 md:py-4 bg-cyan-500 text-[#000d14] font-black rounded-xl md:rounded-2xl hover:bg-cyan-400 transition-all uppercase tracking-[0.2em] text-[8px] md:text-[10px] shadow-lg shadow-cyan-500/20"
+              className="flex items-center justify-center gap-1.5 md:gap-2 px-3.5 py-2.5 md:px-8 md:py-4 bg-cyan-500 text-[#000d14] font-black rounded-xl md:rounded-2xl hover:bg-cyan-400 transition-all uppercase tracking-[0.15em] md:tracking-[0.2em] text-[8px] md:text-[10px] shadow-lg shadow-cyan-500/20 shrink-0"
             >
-              <Plus size={14} strokeWidth={3} className="md:w-[18px]" /> BROADCAST
+              <Plus size={12} strokeWidth={3} className="md:w-[18px]" /> BROADCAST
             </button>
           </div>
 
@@ -320,7 +320,7 @@ export default function AuthenticatedHome({ session }) {
                               {!isPostApex && post.users?.is_verified && (
                                 <CheckCircle2 size={12} className="text-cyan-500 md:w-[16px]" fill="currentColor" fillOpacity={0.1} />
                               )}
-                              <span className="text-[8px] md:text-base font-bold text-slate-500 tracking-tight">@{post.users?.username}</span>
+                              <span className="text-[10px] md:text-base font-bold text-slate-500 tracking-tight">@{post.users?.username}</span>
                             </div>
                             {user?.id === post.users?.id && (
                               <button 
@@ -337,13 +337,13 @@ export default function AuthenticatedHome({ session }) {
                           <div className="flex items-center justify-between mt-4 md:mt-12 text-slate-500">
                             <div className="flex items-center gap-4 md:gap-8">
                               <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="flex items-center gap-1.5 md:gap-2 hover:text-cyan-400 cursor-pointer transition-colors group/btn">
-                                <MessageCircle size={14} className="md:w-[20px]" /><span className="text-[8px] md:text-sm font-black italic">{post.comments_count || 0}</span>
+                                <MessageCircle size={14} className="md:w-[20px]" /><span className="text-[10px] md:text-sm font-black italic">{post.comments_count || 0}</span>
                               </div>
                               <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRepost(post.id); }} className={`flex items-center gap-1.5 md:gap-2 cursor-pointer transition-colors ${post.reposted ? 'text-green-400' : 'hover:text-green-400'}`}>
-                                <Repeat2 size={14} className="md:w-[20px]" /><span className="text-[8px] md:text-sm font-black italic">{post.reposts_count || 0}</span>
+                                <Repeat2 size={14} className="md:w-[20px]" /><span className="text-[10px] md:text-sm font-black italic">{post.reposts_count || 0}</span>
                               </div>
                               <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleLike(post.id); }} className={`flex items-center gap-1.5 md:gap-2 cursor-pointer transition-colors ${post.liked ? 'text-pink-500' : 'hover:text-pink-500'}`}>
-                                <Heart size={14} className="md:w-[20px]" fill={post.liked ? 'currentColor' : 'none'} /><span className="text-[8px] md:text-sm font-black italic">{post.likes_count || 0}</span>
+                                <Heart size={14} className="md:w-[20px]" fill={post.liked ? 'currentColor' : 'none'} /><span className="text-[10px] md:text-sm font-black italic">{post.likes_count || 0}</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-3 md:gap-4">

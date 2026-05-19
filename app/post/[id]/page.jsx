@@ -249,7 +249,7 @@ export default function PostDetailPage() {
               onKeyDown={(e) => e.key === 'Enter' && handlePostComment()}
               placeholder={session ? "Contribute to the strategic shift..." : "Sign in to contribute..."} 
               disabled={!session || isPostingComment}
-              className="flex-grow bg-transparent text-white focus:outline-none placeholder:text-slate-700 text-sm md:text-base disabled:opacity-50"
+              className="flex-grow bg-transparent text-white focus:outline-none placeholder:text-slate-700 text-sm md:text-base disabled:opacity-50 w-full min-w-0"
             />
             <button 
               onClick={handlePostComment}

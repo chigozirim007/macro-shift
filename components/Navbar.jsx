@@ -118,7 +118,7 @@ const Navbar = () => {
                                     <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/user:text-cyan-400 transition-colors">{session?.user?.name?.split(' ')[0] || 'User'}</span>
                                 </Link>
                                 <button 
-                                    onClick={() => signOut({ callbackUrl: "/" })}
+                                    onClick={async () => { await signOut({ redirect: false }); window.location.href = "/"; }}
                                     className="flex items-center gap-0 hover:gap-2 px-2 py-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-all duration-300 group/logout"
                                     title="Sign Out"
                                 >
@@ -216,7 +216,7 @@ const Navbar = () => {
                                 </div>
                                 <div className="h-[1px] bg-white/5 my-6" />
                                 <button 
-                                    onClick={() => { signOut({ callbackUrl: "/" }); setIsOpen(false); }}
+                                    onClick={async () => { await signOut({ redirect: false }); setIsOpen(false); window.location.href = "/"; }}
                                     className="flex items-center gap-4 text-2xl font-black uppercase italic tracking-tighter text-red-500/70 hover:text-red-400 transition-all transform hover:translate-x-2"
                                 >
                                     <LogOut size={24} />
