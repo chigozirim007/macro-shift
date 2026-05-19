@@ -64,20 +64,20 @@ const Navbar = () => {
                     </Link>
 
                     {/* Desktop Navigation - Authority Stream */}
-                    <div className="hidden xl:flex items-center gap-4 xl:gap-8">
+                    <div className="hidden xl:flex items-center gap-3 xl:gap-4">
                         {session && isAdmin && (
-                            <Link href="/admin" className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-[#000d14] border border-cyan-400 rounded-xl hover:bg-cyan-400 transition-all group/admin shadow-[0_0_20px_rgba(6,182,212,0.4)] whitespace-nowrap">
-                                <ShieldCheck size={16} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Oversight Console</span>
+                            <Link href="/admin" className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500 text-[#000d14] border border-cyan-400 rounded-xl hover:bg-cyan-400 transition-all group/admin shadow-[0_0_20px_rgba(6,182,212,0.4)] whitespace-nowrap">
+                                <ShieldCheck size={14} />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Oversight Console</span>
                             </Link>
                         )}
                         {!session && (
-                            <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-3 xl:gap-4.5">
                                 {['AI & Machine Learning', 'Trends', 'Cloud & Infrastructure', 'Software Development', 'Emerging Hardware', 'Contact Us'].map((item) => (
                                     <Link
                                         key={item}
                                         href={`/${item.toLowerCase().replace(/ /g, '-')}`}
-                                        className="relative text-xs font-bold uppercase tracking-widest text-slate-300 hover:text-white transition-all duration-300 group whitespace-nowrap"
+                                        className="relative text-[10px] xl:text-[11px] font-black uppercase tracking-wider text-slate-300 hover:text-cyan-400 transition-all duration-300 group whitespace-nowrap"
                                     >
                                         {item}
                                         <span className="absolute -bottom-2 left-0 w-0 h-[2px] bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-500 group-hover:w-full" />
@@ -88,7 +88,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Actions Area */}
-                    <div className="hidden xl:flex items-center gap-6">
+                    <div className="hidden xl:flex items-center gap-3 xl:gap-5">
                         <form 
                             onSubmit={(e) => {
                                 e.preventDefault();
@@ -96,34 +96,34 @@ const Navbar = () => {
                             }}
                             className="relative group"
                         >
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-cyan-400 transition-colors" />
+                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 group-focus-within:text-cyan-400 transition-colors" />
                             <input
                                 name="search"
                                 type="text"
                                 placeholder="Search the shift..."
-                                className="pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white focus:outline-none focus:border-cyan-500/50 w-32 xl:w-48 transition-all"
+                                className="pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] xl:text-xs text-white focus:outline-none focus:border-cyan-500/50 w-24 xl:w-36 transition-all"
                             />
                         </form>
 
                         {/* Auth Logic */}
                         {session ? (
-                            <div className="flex items-center gap-4">
-                                <Link href="/account" className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all group/user">
+                            <div className="flex items-center gap-3">
+                                <Link href="/account" className="flex items-center gap-1.5 px-2.5 py-1 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all group/user">
                                     <img 
                                         src={session?.user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(session?.user?.name || 'User')}&background=06b6d4&color=fff`} 
                                         alt={session?.user?.name || 'User'}
-                                        className="w-6 h-6 rounded-full border border-cyan-500/50 group-hover/user:border-cyan-400 transition-colors object-cover"
+                                        className="w-5 h-5 rounded-full border border-cyan-500/50 group-hover/user:border-cyan-400 transition-colors object-cover"
                                         onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(session?.user?.name || 'User')}&background=06b6d4&color=fff`; }}
                                     />
-                                    <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/user:text-cyan-400 transition-colors">{session?.user?.name?.split(' ')[0] || 'User'}</span>
+                                    <span className="text-[9px] font-black text-white uppercase tracking-widest group-hover/user:text-cyan-400 transition-colors">{session?.user?.name?.split(' ')[0] || 'User'}</span>
                                 </Link>
                                 <button 
                                     onClick={async () => { await signOut({ redirect: false }); window.location.href = "/"; }}
                                     className="flex items-center gap-0 hover:gap-2 px-2 py-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-all duration-300 group/logout"
                                     title="Sign Out"
                                 >
-                                    <LogOut size={16} />
-                                    <span className="max-w-0 overflow-hidden group-hover/logout:max-w-[100px] transition-all duration-500 ease-in-out text-[10px] font-black uppercase tracking-widest">
+                                    <LogOut size={14} />
+                                    <span className="max-w-0 overflow-hidden group-hover/logout:max-w-[100px] transition-all duration-500 ease-in-out text-[9px] font-black uppercase tracking-widest">
                                         Logout
                                     </span>
                                 </button>
@@ -131,15 +131,15 @@ const Navbar = () => {
                         ) : (
                             <>
                                 {/* Sign In with Micro-Bounce */}
-                                <Link href="/signin" className="flex items-center gap-2 text-sm font-bold text-slate-300 hover:text-white hover:-translate-y-0.5 transition-all">
+                                <Link href="/signin" className="flex items-center gap-1.5 text-[10px] xl:text-xs font-black uppercase tracking-wider text-slate-300 hover:text-cyan-400 hover:-translate-y-0.5 transition-all whitespace-nowrap">
                                     SIGN IN
-                                    <UserRound className="w-4 h-4 text-cyan-400" />
+                                    <UserRound className="w-3.5 h-3.5 text-cyan-400" />
                                 </Link>
 
                                 {/* The "Shimmer" Button */}
                                 <Link 
                                     href="/get-started"
-                                    className="relative group px-6 py-2.5 bg-cyan-500 text-[#001b2b] font-black text-xs rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(6,182,212,0.3)] block"
+                                    className="relative group px-4 py-2 xl:px-5 xl:py-2.5 bg-cyan-500 text-[#001b2b] font-black text-[10px] xl:text-xs rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(6,182,212,0.3)] block whitespace-nowrap"
                                 >
                                     <span className="relative z-10">GET STARTED</span>
                                     <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-40 group-hover:animate-shine" />

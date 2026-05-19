@@ -336,7 +336,7 @@ export default function AuthenticatedHome({ session }) {
                           
                           <div className="flex items-center justify-between mt-4 md:mt-12 text-slate-500">
                             <div className="flex items-center gap-4 md:gap-8">
-                              <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="flex items-center gap-1.5 md:gap-2 hover:text-cyan-400 cursor-pointer transition-colors group/btn">
+                              <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/post/${post.id}`; }} className="flex items-center gap-1.5 md:gap-2 hover:text-cyan-400 cursor-pointer transition-colors group/btn">
                                 <MessageCircle size={14} className="md:w-[20px]" /><span className="text-[10px] md:text-sm font-black italic">{post.comments_count || 0}</span>
                               </div>
                               <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRepost(post.id); }} className={`flex items-center gap-1.5 md:gap-2 cursor-pointer transition-colors ${post.reposted ? 'text-green-400' : 'hover:text-green-400'}`}>
@@ -347,7 +347,9 @@ export default function AuthenticatedHome({ session }) {
                               </div>
                             </div>
                             <div className="flex items-center gap-3 md:gap-4">
-                              <Bookmark onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBookmark(post.id); }} size={14} className={`md:w-[20px] ${post.bookmarked ? 'text-cyan-400' : 'hover:text-cyan-400'}`} fill={post.bookmarked ? 'currentColor' : 'none'} />
+                              <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBookmark(post.id); }} className={`cursor-pointer transition-colors ${post.bookmarked ? 'text-cyan-400' : 'hover:text-cyan-400'}`}>
+                                <Bookmark size={14} className="md:w-[20px]" fill={post.bookmarked ? 'currentColor' : 'none'} />
+                              </div>
                               <Share size={14} className="md:w-[20px] hover:text-cyan-400" />
                             </div>
                           </div>
