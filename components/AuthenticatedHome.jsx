@@ -350,7 +350,16 @@ export default function AuthenticatedHome({ session }) {
                               <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleBookmark(post.id); }} className={`cursor-pointer transition-colors ${post.bookmarked ? 'text-cyan-400' : 'hover:text-cyan-400'}`}>
                                 <Bookmark size={14} className="md:w-[20px]" fill={post.bookmarked ? 'currentColor' : 'none'} />
                               </div>
-                              <Share size={14} className="md:w-[20px] hover:text-cyan-400" />
+                              <div onClick={(e) => { 
+                                  e.preventDefault(); 
+                                  e.stopPropagation(); 
+                                  navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+                                  alert('Strategic link copied to clipboard!');
+                                }}
+                                className="cursor-pointer text-slate-500 hover:text-cyan-400 transition-colors"
+                              >
+                                <Share size={14} className="md:w-[20px]" />
+                              </div>
                             </div>
                           </div>
                         </div>
