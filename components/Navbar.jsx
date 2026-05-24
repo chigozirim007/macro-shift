@@ -64,7 +64,7 @@ const Navbar = () => {
                     </Link>
 
                     {/* Desktop Navigation - Authority Stream */}
-                    <div className="hidden xl:flex items-center gap-3 xl:gap-4">
+                    <div className="hidden lg:flex items-center gap-3 lg:gap-4">
                         {session && isAdmin && (
                             <Link href="/admin" className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500 text-[#000d14] border border-cyan-400 rounded-xl hover:bg-cyan-400 transition-all group/admin shadow-[0_0_20px_rgba(6,182,212,0.4)] whitespace-nowrap">
                                 <ShieldCheck size={14} />
@@ -88,7 +88,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Actions Area */}
-                    <div className="hidden xl:flex items-center gap-3 xl:gap-5">
+                    <div className="hidden lg:flex items-center gap-3 lg:gap-5">
                         <form 
                             onSubmit={(e) => {
                                 e.preventDefault();
@@ -101,7 +101,7 @@ const Navbar = () => {
                                 name="search"
                                 type="text"
                                 placeholder="Search the shift..."
-                                className="pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] xl:text-xs text-white focus:outline-none focus:border-cyan-500/50 w-24 xl:w-36 transition-all"
+                                className="pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] lg:text-xs text-white focus:outline-none focus:border-cyan-500/50 w-24 lg:w-36 transition-all"
                             />
                         </form>
 
@@ -131,7 +131,7 @@ const Navbar = () => {
                         ) : (
                             <>
                                 {/* Sign In with Micro-Bounce */}
-                                <Link href="/signin" className="flex items-center gap-1.5 text-[10px] xl:text-xs font-black uppercase tracking-wider text-slate-300 hover:text-cyan-400 hover:-translate-y-0.5 transition-all whitespace-nowrap">
+                                <Link href="/signin" className="flex items-center gap-1.5 text-[10px] lg:text-xs font-black uppercase tracking-wider text-slate-300 hover:text-cyan-400 hover:-translate-y-0.5 transition-all whitespace-nowrap">
                                     SIGN IN
                                     <UserRound className="w-3.5 h-3.5 text-cyan-400" />
                                 </Link>
@@ -139,7 +139,7 @@ const Navbar = () => {
                                 {/* The "Shimmer" Button */}
                                 <Link 
                                     href="/get-started"
-                                    className="relative group px-4 py-2 xl:px-5 xl:py-2.5 bg-cyan-500 text-[#001b2b] font-black text-[10px] xl:text-xs rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(6,182,212,0.3)] block whitespace-nowrap"
+                                    className="relative group px-4 py-2 lg:px-5 lg:py-2.5 bg-cyan-500 text-[#001b2b] font-black text-[10px] lg:text-xs rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(6,182,212,0.3)] block whitespace-nowrap"
                                 >
                                     <span className="relative z-10">GET STARTED</span>
                                     <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-40 group-hover:animate-shine" />
@@ -149,7 +149,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Mobile Toggle */}
-                    <div className="flex xl:hidden items-center gap-4">
+                    <div className="flex lg:hidden items-center gap-4">
                          {session && (
                              <Link href="/account" className="p-2 bg-white/5 border border-white/10 rounded-full">
                                 <img 
@@ -169,7 +169,7 @@ const Navbar = () => {
 
             {/* Mobile Drawer with Advanced Blur */}
             {isOpen && (
-                <div className="lg:hidden fixed inset-0 z-[4000] bg-[#000d14]/98 backdrop-blur-3xl flex flex-col p-8 overflow-y-auto animate-in fade-in slide-in-from-top duration-500 w-full h-full">
+                <div className="fixed inset-0 z-[4000] bg-[#000d14]/98 backdrop-blur-3xl flex flex-col p-8 overflow-y-auto animate-in fade-in slide-in-from-top duration-500 w-full h-full">
                     
                     {/* Header in Drawer */}
                     <div className="flex justify-between items-center mb-12 pt-4">
