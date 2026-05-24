@@ -1,12 +1,59 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ArrowRight, Trash2, Clock, Share2, Bookmark, MessageSquare, Heart, Edit3, Loader2, AlertCircle, ShieldCheck, Repeat2, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ArrowRight, Trash2, Clock, Share2, Bookmark, MessageSquare, Heart, Edit3, Loader2, AlertCircle, ShieldCheck, Repeat2, CheckCircle2, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { PostSkeleton } from './Skeleton';
 import ErrorModal from '@/components/ErrorModal';
+
+// Measures rendered line count and shows a 'Read More' link for posts > 5 lines
+function PostContent({ content, postId }) {
+  const measureRef = useRef(null);
+  const [isLong, setIsLong] = useState(false);
+
+  useEffect(() => {
+    if (!measureRef.current) return;
+    const el = measureRef.current;
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 20;
+    const totalHeight = el.scrollHeight;
+    const lines = Math.round(totalHeight / lineHeight);
+    setIsLong(lines > 5);
+  }, [content]);
+
+  return (
+    <div>
+      {/* Hidden full-text div for measuring line count */}
+      <p
+        ref={measureRef}
+        className="text-slate-400 text-xs md:text-sm font-light leading-relaxed"
+        style={{ position: 'absolute', visibility: 'hidden', pointerEvents: 'none', width: '100%', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+        aria-hidden="true"
+      >
+        {content}
+      </p>
+
+      {/* Visible content — clamped if long */}
+      <p
+        className="text-slate-400 text-xs md:text-sm font-light leading-relaxed mb-2"
+        style={isLong ? { display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 5, overflow: 'hidden' } : {}}
+      >
+        {content}
+      </p>
+
+      {isLong && (
+        <Link
+          href={`/post/${postId}`}
+          onClick={e => e.stopPropagation()}
+          className="inline-flex items-center gap-1 text-[10px] font-black text-cyan-400 uppercase tracking-widest hover:text-cyan-300 transition-colors mt-1 mb-4"
+        >
+          Read More <ChevronDown size={11} className="rotate-[-90deg]" />
+        </Link>
+      )}
+    </div>
+  );
+}
 
 function timeAgo(dateString) {
   const seconds = Math.floor((new Date() - new Date(dateString)) / 1000);
@@ -172,9 +219,9 @@ export default function PostFeed({ activeCategory = null }) {
                     <h3 className="text-lg md:text-xl font-black text-white leading-tight mb-3 md:mb-4 group-hover:text-cyan-400 transition-colors uppercase italic">
                       {post.title}
                     </h3>
-                    <p className="text-slate-400 text-xs md:text-sm font-light leading-relaxed mb-4 md:mb-6 line-clamp-3">
-                      {post.content}
-                    </p>
+                    <div className="relative mb-4 md:mb-6">
+                      <PostContent content={post.content} postId={post.id} />
+                    </div>
                   </div>
 
                   <div className="mt-auto p-6 md:p-8 pt-0 space-y-4">

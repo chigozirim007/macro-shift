@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Home as HomeIcon,
   Search,
@@ -30,6 +30,52 @@ import {
 import Link from 'next/link';
 import { Skeleton, PostSkeleton, ProfileSkeleton } from './Skeleton';
 import ErrorModal from '@/components/ErrorModal';
+
+// Measures rendered line count and shows a 'Read More' link for posts > 5 lines
+function PostContent({ content, postId }) {
+  const measureRef = useRef(null);
+  const [isLong, setIsLong] = useState(false);
+
+  useEffect(() => {
+    if (!measureRef.current) return;
+    const el = measureRef.current;
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 22;
+    const lines = Math.round(el.scrollHeight / lineHeight);
+    setIsLong(lines > 5);
+  }, [content]);
+
+  return (
+    <div>
+      {/* Hidden element for line measurement */}
+      <p
+        ref={measureRef}
+        className="text-[11px] md:text-xl text-slate-300 leading-relaxed font-light"
+        style={{ position: 'absolute', visibility: 'hidden', pointerEvents: 'none', width: '100%', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+        aria-hidden="true"
+      >
+        {content}
+      </p>
+
+      {/* Visible content — clamped if long */}
+      <p
+        className="text-[11px] md:text-xl text-slate-300 leading-relaxed font-light"
+        style={isLong ? { display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 5, overflow: 'hidden' } : {}}
+      >
+        {content}
+      </p>
+
+      {isLong && (
+        <Link
+          href={`/post/${postId}`}
+          onClick={e => e.stopPropagation()}
+          className="inline-flex items-center gap-1.5 text-[10px] md:text-xs font-black text-cyan-400 uppercase tracking-widest hover:text-cyan-300 transition-colors mt-2"
+        >
+          Read More <span className="text-cyan-400 text-base leading-none" aria-hidden>›</span>
+        </Link>
+      )}
+    </div>
+  );
+}
 
 function timeAgo(dateString) {
   if (!dateString) return 'Recently';
@@ -332,7 +378,9 @@ export default function AuthenticatedHome({ session }) {
                             )}
                           </div>
                           <h4 className="text-sm md:text-xl font-black text-white leading-tight uppercase italic truncate">{post.title}</h4>
-                          <p className="text-[11px] md:text-xl text-slate-300 leading-relaxed font-light line-clamp-2 md:line-clamp-3">{post.content}</p>
+                          <div className="relative">
+                            <PostContent content={post.content} postId={post.id} />
+                          </div>
                           
                           <div className="flex items-center justify-between mt-4 md:mt-12 text-slate-500">
                             <div className="flex items-center gap-4 md:gap-8">
