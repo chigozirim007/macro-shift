@@ -4,10 +4,12 @@ import GitHub from "next-auth/providers/github"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { createClient } from "@supabase/supabase-js"
+import { getSupabaseEnv } from "./lib/env"
 
 // Use a direct client here (not the singleton) to avoid circular imports
 function getSupabase() {
-  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+  const { url, anonKey } = getSupabaseEnv();
+  return createClient(url, anonKey);
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
