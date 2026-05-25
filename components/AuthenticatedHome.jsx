@@ -517,7 +517,7 @@ export default function AuthenticatedHome({ session }) {
                 onChange={(e) => setNewPost({...newPost, title: e.target.value})}
               />
               <select 
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-cyan-500/50 transition-all font-bold appearance-none"
+                className="w-full bg-slate-900 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-cyan-500/50 transition-all font-bold appearance-none"
                 value={newPost.category}
                 onChange={(e) => setNewPost({...newPost, category: e.target.value})}
               >

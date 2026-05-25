@@ -2,20 +2,20 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import { 
-  ArrowLeft, 
-  MoreVertical, 
-  MessageCircle, 
-  Repeat2, 
-  Heart, 
-  Share, 
-  Bookmark, 
-  Zap, 
-  Shield, 
+import {
+  ArrowLeft,
+  MoreVertical,
+  MessageCircle,
+  Repeat2,
+  Heart,
+  Share,
+  Bookmark,
+  Zap,
+  Shield,
   ShieldCheck,
   CheckCircle2,
-  Check, 
-  Globe, 
+  Check,
+  Globe,
   Link as LinkIcon,
   Loader2,
   Clock
@@ -40,7 +40,7 @@ export default function PostDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [post, setPost] = useState(null);
   const [error, setError] = useState(null);
-  
+
   const [commentText, setCommentText] = useState('');
   const [isPostingComment, setIsPostingComment] = useState(false);
   const commentInputRef = useRef(null);
@@ -125,9 +125,9 @@ export default function PostDetailPage() {
   return (
     <div className="min-h-screen bg-[#000d14] pt-32 pb-20 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
-      
+
       <div className="max-w-4xl mx-auto px-6 relative z-10">
-        <button 
+        <button
           onClick={() => router.back()}
           className="flex items-center gap-3 text-slate-500 hover:text-white transition-all mb-12 group"
         >
@@ -139,19 +139,19 @@ export default function PostDetailPage() {
 
         <div className="bg-white/[0.03] border border-white/5 rounded-[2rem] md:rounded-[4rem] p-8 md:p-16 shadow-2xl backdrop-blur-3xl overflow-hidden relative">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
-          
+
           <div className="flex items-center justify-between mb-12">
             <div className="flex items-center gap-6">
-              <img 
-                src={post.users?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=06b6d4&color=fff`} 
-                className="w-16 h-16 rounded-2xl border-2 border-cyan-500/20 object-cover" 
+              <img
+                src={post.users?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=06b6d4&color=fff`}
+                className="w-16 h-16 rounded-2xl border-2 border-cyan-500/20 object-cover"
                 onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=06b6d4&color=fff`; }}
               />
               <div>
                 <div className="flex items-center gap-3 flex-wrap">
                   <h2 className="text-xl md:text-3xl font-black text-white uppercase italic tracking-tighter flex items-center gap-2">
                     {authorName}
-                    
+
                     {/* APEX IDENTITY (ADMIN) - DUAL MARK SYSTEM */}
                     {isApex && (
                       <div className="flex items-center gap-1.5">
@@ -236,22 +236,22 @@ export default function PostDetailPage() {
 
         <div className="mt-16 space-y-8">
           <h3 className="text-xs font-black text-white uppercase tracking-widest italic ml-4">Analysis Thread</h3>
-          
+
           <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 flex gap-6 items-center">
             <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center shrink-0">
-               <Zap size={20} className="text-cyan-400" />
+              <Zap size={20} className="text-cyan-400" />
             </div>
-            <input 
+            <input
               ref={commentInputRef}
-              type="text" 
+              type="text"
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handlePostComment()}
-              placeholder={session ? "Contribute to the strategic shift..." : "Sign in to contribute..."} 
+              placeholder={session ? "Contribute to the strategic shift..." : "Sign in to contribute..."}
               disabled={!session || isPostingComment}
               className="flex-grow bg-transparent text-white focus:outline-none placeholder:text-slate-700 text-sm md:text-base disabled:opacity-50 w-full min-w-0"
             />
-            <button 
+            <button
               onClick={handlePostComment}
               disabled={!session || isPostingComment || !commentText.trim()}
               className="px-6 py-2 bg-cyan-500 text-[#000d14] font-black rounded-lg text-[10px] uppercase tracking-widest hover:bg-cyan-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
@@ -262,13 +262,13 @@ export default function PostDetailPage() {
           {post.comments?.map((reply) => {
             const replyAuthorName = `${reply.users?.first_name || ''} ${reply.users?.last_name || ''}`.trim();
             const replyIsApex = reply.users?.role === 'admin' || reply.users?.email === 'nwokedichigozirim747@gmail.com';
-            
+
             return (
               <div key={reply.id} className="bg-white/[0.03] border border-white/5 rounded-[2rem] p-8 md:p-10 hover:bg-white/[0.05] transition-all group">
                 <div className="flex gap-6">
-                  <img 
-                    src={reply.users?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(replyAuthorName)}&background=06b6d4&color=fff`} 
-                    className="w-12 h-12 rounded-xl border border-white/10 object-cover" 
+                  <img
+                    src={reply.users?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(replyAuthorName)}&background=06b6d4&color=fff`}
+                    className="w-12 h-12 rounded-xl border border-white/10 object-cover"
                     onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(replyAuthorName)}&background=06b6d4&color=fff`; }}
                   />
                   <div className="flex-grow space-y-4">
@@ -276,7 +276,7 @@ export default function PostDetailPage() {
                       <div>
                         <h4 className="text-sm font-black text-white uppercase italic tracking-wider flex items-center gap-2">
                           {replyAuthorName}
-                          
+
                           {/* APEX IDENTITY (ADMIN) - DUAL MARK SYSTEM */}
                           {replyIsApex && (
                             <div className="flex items-center gap-1">
