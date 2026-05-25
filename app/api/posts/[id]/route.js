@@ -6,6 +6,19 @@ import { auth } from '@/auth';
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
+
+    // Get current user's ID if logged in
+    const session = await auth();
+    let currentUserId = null;
+    if (session?.user?.email) {
+      const { data: user } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', session.user.email.toLowerCase())
+        .maybeSingle();
+      if (user) currentUserId = user.id;
+    }
+
     const { data: post, error } = await supabase
       .from('posts')
       .select(`
@@ -26,6 +39,23 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Post not found.' }, { status: 404 });
     }
 
+    // Get user engagement status if logged in
+    let liked = false, bookmarked = false, reposted = false;
+    if (currentUserId) {
+      const [
+        { data: like },
+        { data: bookmark },
+        { data: repost }
+      ] = await Promise.all([
+        supabase.from('likes').select('id').eq('post_id', id).eq('user_id', currentUserId).maybeSingle(),
+        supabase.from('bookmarks').select('id').eq('post_id', id).eq('user_id', currentUserId).maybeSingle(),
+        supabase.from('reposts').select('id').eq('post_id', id).eq('user_id', currentUserId).maybeSingle(),
+      ]);
+      liked = !!like;
+      bookmarked = !!bookmark;
+      reposted = !!repost;
+    }
+
     // Increment view count (fire-and-forget — don't block the response)
     supabase
       .from('posts')
@@ -39,6 +69,9 @@ export async function GET(request, { params }) {
         likes_count: post.likes?.[0]?.count ?? 0,
         bookmarks_count: post.bookmarks?.[0]?.count ?? 0,
         reposts_count: post.reposts?.[0]?.count ?? 0,
+        liked,
+        bookmarked,
+        reposted,
         likes: undefined,
         bookmarks: undefined,
         reposts: undefined,

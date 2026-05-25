@@ -115,13 +115,13 @@ export default function PostFeed({ activeCategory = null }) {
   const toggleBookmark = async (postId) => {
     if (!session) return;
     setPosts(prev => prev.map(p =>
-      p.id === postId ? { ...p, bookmarked: !p.bookmarked } : p
+      p.id === postId ? { ...p, bookmarked: !p.bookmarked, bookmarks_count: p.bookmarked ? p.bookmarks_count - 1 : p.bookmarks_count + 1 } : p
     ));
     try {
       await fetch(`/api/posts/${postId}/bookmark`, { method: 'POST' });
     } catch {
       setPosts(prev => prev.map(p =>
-        p.id === postId ? { ...p, bookmarked: !p.bookmarked } : p
+        p.id === postId ? { ...p, bookmarked: !p.bookmarked, bookmarks_count: p.bookmarked ? p.bookmarks_count - 1 : p.bookmarks_count + 1 } : p
       ));
     }
   };

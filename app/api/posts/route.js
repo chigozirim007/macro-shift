@@ -11,6 +11,18 @@ export async function GET(request) {
     const userId = searchParams.get('user_id');
     const searchTerm = searchParams.get('query');
 
+    // Get current user's ID if logged in
+    const session = await auth();
+    let currentUserId = null;
+    if (session?.user?.email) {
+      const { data: user } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', session.user.email.toLowerCase())
+        .maybeSingle();
+      if (user) currentUserId = user.id;
+    }
+
     let query = supabase
       .from('posts')
       .select(`
@@ -69,7 +81,27 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Failed to fetch posts.' }, { status: 500 });
     }
 
-    // Normalize the aggregated counts
+    // If user is logged in, fetch their engagement data
+    let userLikes = [], userBookmarks = [], userReposts = [];
+    if (currentUserId && posts.length > 0) {
+      const postIds = posts.map(p => p.id);
+      
+      const [
+        { data: likes },
+        { data: bookmarks },
+        { data: reposts }
+      ] = await Promise.all([
+        supabase.from('likes').select('post_id').eq('user_id', currentUserId).in('post_id', postIds),
+        supabase.from('bookmarks').select('post_id').eq('user_id', currentUserId).in('post_id', postIds),
+        supabase.from('reposts').select('post_id').eq('user_id', currentUserId).in('post_id', postIds),
+      ]);
+      
+      userLikes = likes || [];
+      userBookmarks = bookmarks || [];
+      userReposts = reposts || [];
+    }
+
+    // Normalize the aggregated counts and add user engagement status
     const normalized = posts.map(p => ({
       ...p,
       likes_count: p.likes?.[0]?.count ?? 0,
@@ -77,6 +109,9 @@ export async function GET(request) {
       reposts_count: p.reposts?.[0]?.count ?? 0,
       comments_count: p.comments?.[0]?.count ?? 0,
       views_count: p.views_count ?? 0,
+      liked: userLikes.some(l => l.post_id === p.id),
+      bookmarked: userBookmarks.some(b => b.post_id === p.id),
+      reposted: userReposts.some(r => r.post_id === p.id),
       likes: undefined,
       bookmarks: undefined,
       reposts: undefined,

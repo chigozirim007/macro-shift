@@ -55,9 +55,9 @@ export default function PostDetailPage() {
 
   const toggleBookmark = async () => {
     if (!session) return router.push('/signin');
-    setPost(prev => ({ ...prev, bookmarked: !prev.bookmarked }));
+    setPost(prev => ({ ...prev, bookmarked: !prev.bookmarked, bookmarks_count: prev.bookmarked ? prev.bookmarks_count - 1 : prev.bookmarks_count + 1 }));
     try { await fetch(`/api/posts/${post.id}/bookmark`, { method: 'POST' }); } catch {
-      setPost(prev => ({ ...prev, bookmarked: !prev.bookmarked }));
+      setPost(prev => ({ ...prev, bookmarked: !prev.bookmarked, bookmarks_count: prev.bookmarked ? prev.bookmarks_count - 1 : prev.bookmarks_count + 1 }));
     }
   };
 
