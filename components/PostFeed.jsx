@@ -76,10 +76,11 @@ export default function PostFeed({ activeCategory = null }) {
       setLoading(true);
       setError(null);
       try {
+        const separator = activeCategory ? '&' : '?';
         const url = activeCategory
-          ? `/api/posts?category=${encodeURIComponent(activeCategory)}`
-          : '/api/posts';
-        const res = await fetch(url);
+          ? `/api/posts?category=${encodeURIComponent(activeCategory)}${separator}t=${Date.now()}`
+          : `/api/posts?t=${Date.now()}`;
+        const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) throw new Error('Failed to load posts.');
         const data = await res.json();
         setPosts(data.posts || []);
@@ -101,9 +102,27 @@ export default function PostFeed({ activeCategory = null }) {
         : p
     ));
     try {
-      await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
-    } catch {
-      // Revert optimistic update on failure
+      const res = await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
+      if (!res.ok) {
+        // Revert optimistic update on server error
+        setPosts(prev => prev.map(p =>
+          p.id === postId
+            ? { ...p, liked: !p.liked, likes_count: p.liked ? p.likes_count - 1 : p.likes_count + 1 }
+            : p
+        ));
+        return;
+      }
+      const data = await res.json();
+      // Reconcile with server response if present
+      if (data) {
+        setPosts(prev => prev.map(p => p.id === postId ? {
+          ...p,
+          liked: typeof data.liked === 'boolean' ? !!data.liked : p.liked,
+          likes_count: typeof data.likes_count === 'number' ? data.likes_count : p.likes_count
+        } : p));
+      }
+    } catch (err) {
+      // Revert optimistic update on network failure
       setPosts(prev => prev.map(p =>
         p.id === postId
           ? { ...p, liked: !p.liked, likes_count: p.liked ? p.likes_count - 1 : p.likes_count + 1 }
@@ -118,8 +137,23 @@ export default function PostFeed({ activeCategory = null }) {
       p.id === postId ? { ...p, bookmarked: !p.bookmarked, bookmarks_count: p.bookmarked ? p.bookmarks_count - 1 : p.bookmarks_count + 1 } : p
     ));
     try {
-      await fetch(`/api/posts/${postId}/bookmark`, { method: 'POST' });
-    } catch {
+      const res = await fetch(`/api/posts/${postId}/bookmark`, { method: 'POST' });
+      if (!res.ok) {
+        // Revert optimistic update on server error
+        setPosts(prev => prev.map(p =>
+          p.id === postId ? { ...p, bookmarked: !p.bookmarked, bookmarks_count: p.bookmarked ? p.bookmarks_count - 1 : p.bookmarks_count + 1 } : p
+        ));
+        return;
+      }
+      const data = await res.json();
+      if (data) {
+        setPosts(prev => prev.map(p => p.id === postId ? {
+          ...p,
+          bookmarked: typeof data.bookmarked === 'boolean' ? !!data.bookmarked : p.bookmarked,
+          bookmarks_count: typeof data.bookmarks_count === 'number' ? data.bookmarks_count : p.bookmarks_count
+        } : p));
+      }
+    } catch (err) {
       setPosts(prev => prev.map(p =>
         p.id === postId ? { ...p, bookmarked: !p.bookmarked, bookmarks_count: p.bookmarked ? p.bookmarks_count - 1 : p.bookmarks_count + 1 } : p
       ));
@@ -187,7 +221,7 @@ export default function PostFeed({ activeCategory = null }) {
         {!loading && !error && posts.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {posts.map((post) => (
-              <Link href={`/post/${post.id}`} key={post.id} className="block group">
+              <div key={post.id} className="block group" onClick={(e) => { if (e.defaultPrevented) return; router.push(`/post/${post.id}`); }}>
                 <div className="relative flex flex-col h-full bg-white/5 border border-white/10 rounded-2xl md:rounded-[2rem] overflow-hidden hover:bg-white/10 transition-all duration-500 hover:border-cyan-500/30 shadow-2xl">
                   {/* Animated Post Background Fitting */}
                   <div className="absolute inset-0 z-0 pointer-events-none">
@@ -290,7 +324,7 @@ export default function PostFeed({ activeCategory = null }) {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}

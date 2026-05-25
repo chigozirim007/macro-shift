@@ -125,11 +125,14 @@ export default function AuthenticatedHome({ session }) {
       setFeedError(null);
       
       try {
-        const interestsParam = user.interests?.length > 0 ? `?interests=${user.interests.join(',')}` : '';
+        const hasInterests = user.interests?.length > 0;
+        const postsUrl = hasInterests
+          ? `/api/posts?interests=${user.interests.join(',')}&t=${Date.now()}`
+          : `/api/posts?t=${Date.now()}`;
         const [postsRes, statsRes, trendRes] = await Promise.all([
-          fetch(`/api/posts${interestsParam}`),
-          fetch('/api/users/stats'),
-          fetch('/api/trending')
+          fetch(postsUrl, { cache: 'no-store' }),
+          fetch(`/api/users/stats?t=${Date.now()}`, { cache: 'no-store' }),
+          fetch(`/api/trending?t=${Date.now()}`, { cache: 'no-store' })
         ]);
 
         if (postsRes.ok) {
@@ -272,8 +275,27 @@ export default function AuthenticatedHome({ session }) {
       };
     }));
     try {
-      await fetch(`/api/posts/${postId}/${endpoint}`, { method: 'POST' });
-    } catch {
+      const res = await fetch(`/api/posts/${postId}/${endpoint}`, { method: 'POST' });
+      if (!res.ok) {
+        // Revert optimistic update on server error
+        setPosts(prev => prev.map(p => {
+          if (p.id !== postId) return p;
+          const isActive = !p[activeField];
+          return { ...p, [activeField]: isActive, [countField]: isActive ? p[countField] + 1 : Math.max(0, p[countField] - 1) };
+        }));
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (data) {
+        setPosts(prev => prev.map(p => {
+          if (p.id !== postId) return p;
+          const updates = {};
+          if (typeof data[activeField] === 'boolean') updates[activeField] = data[activeField];
+          if (typeof data[countField] === 'number') updates[countField] = data[countField];
+          return { ...p, ...updates };
+        }));
+      }
+    } catch (err) {
       setPosts(prev => prev.map(p => {
         if (p.id !== postId) return p;
         const isActive = !p[activeField];
@@ -338,7 +360,7 @@ export default function AuthenticatedHome({ session }) {
             {!isLoadingFeed && !feedError && posts.map((post) => {
               const isPostApex = post.users?.role === 'admin' || post.users?.email === 'nwokedichigozirim747@gmail.com';
               return (
-                <Link href={`/post/${post.id}`} key={post.id} className="block group">
+                <div key={post.id} className="block group" onClick={(e) => { if (e.defaultPrevented) return; window.location.href = `/post/${post.id}`; }}>
                   <div className="relative bg-white/[0.03] border border-white/5 rounded-2xl md:rounded-[3rem] p-4 md:p-12 hover:bg-white/[0.05] transition-all cursor-pointer shadow-2xl overflow-hidden">
                     <div className="absolute inset-0 z-0 pointer-events-none">
                       <div className="absolute -top-[20%] -left-[20%] w-[140%] h-[140%] bg-gradient-radial from-cyan-500/5 via-transparent to-transparent animate-intelligence-pulse" />
@@ -414,7 +436,7 @@ export default function AuthenticatedHome({ session }) {
                       </div>
                     </div>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </main>

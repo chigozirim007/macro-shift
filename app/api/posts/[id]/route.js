@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, ensureUser } from '@/lib/supabase';
 import { auth } from '@/auth';
 
 // GET /api/posts/[id]
@@ -10,12 +10,8 @@ export async function GET(request, { params }) {
     // Get current user's ID if logged in
     const session = await auth();
     let currentUserId = null;
-    if (session?.user?.email) {
-      const { data: user } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', session.user.email.toLowerCase())
-        .maybeSingle();
+    if (session) {
+      const user = await ensureUser(session);
       if (user) currentUserId = user.id;
     }
 
@@ -63,6 +59,7 @@ export async function GET(request, { params }) {
       .eq('id', id)
       .then(() => {});
 
+    // Include per-user engagement and disable caching so clients see immediate updates.
     return NextResponse.json({
       post: {
         ...post,
@@ -78,7 +75,7 @@ export async function GET(request, { params }) {
       }
     }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=60',
+        'Cache-Control': 'no-store'
       },
     });
   } catch (error) {

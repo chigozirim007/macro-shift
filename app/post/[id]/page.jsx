@@ -48,7 +48,21 @@ export default function PostDetailPage() {
   const toggleLike = async () => {
     if (!session) return router.push('/signin');
     setPost(prev => ({ ...prev, liked: !prev.liked, likes_count: prev.liked ? prev.likes_count - 1 : prev.likes_count + 1 }));
-    try { await fetch(`/api/posts/${post.id}/like`, { method: 'POST' }); } catch {
+    try {
+      const res = await fetch(`/api/posts/${post.id}/like`, { method: 'POST' });
+      if (!res.ok) {
+        setPost(prev => ({ ...prev, liked: !prev.liked, likes_count: prev.liked ? prev.likes_count - 1 : prev.likes_count + 1 }));
+        return;
+      }
+      const data = await res.json();
+      if (data && typeof data.liked === 'boolean') {
+        setPost(prev => ({
+          ...prev,
+          liked: !!data.liked,
+          likes_count: typeof data.likes_count === 'number' ? data.likes_count : prev.likes_count
+        }));
+      }
+    } catch (err) {
       setPost(prev => ({ ...prev, liked: !prev.liked, likes_count: prev.liked ? prev.likes_count - 1 : prev.likes_count + 1 }));
     }
   };
@@ -56,7 +70,21 @@ export default function PostDetailPage() {
   const toggleBookmark = async () => {
     if (!session) return router.push('/signin');
     setPost(prev => ({ ...prev, bookmarked: !prev.bookmarked, bookmarks_count: prev.bookmarked ? prev.bookmarks_count - 1 : prev.bookmarks_count + 1 }));
-    try { await fetch(`/api/posts/${post.id}/bookmark`, { method: 'POST' }); } catch {
+    try {
+      const res = await fetch(`/api/posts/${post.id}/bookmark`, { method: 'POST' });
+      if (!res.ok) {
+        setPost(prev => ({ ...prev, bookmarked: !prev.bookmarked, bookmarks_count: prev.bookmarked ? prev.bookmarks_count - 1 : prev.bookmarks_count + 1 }));
+        return;
+      }
+      const data = await res.json();
+      if (data && typeof data.bookmarked === 'boolean') {
+        setPost(prev => ({
+          ...prev,
+          bookmarked: !!data.bookmarked,
+          bookmarks_count: typeof data.bookmarks_count === 'number' ? data.bookmarks_count : prev.bookmarks_count
+        }));
+      }
+    } catch (err) {
       setPost(prev => ({ ...prev, bookmarked: !prev.bookmarked, bookmarks_count: prev.bookmarked ? prev.bookmarks_count - 1 : prev.bookmarks_count + 1 }));
     }
   };
@@ -64,6 +92,28 @@ export default function PostDetailPage() {
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     alert('Link copied to clipboard!');
+  };
+
+  const toggleRepost = async () => {
+    if (!session) return router.push('/signin');
+    setPost(prev => ({ ...prev, reposted: !prev.reposted, reposts_count: prev.reposted ? Math.max(0, prev.reposts_count - 1) : prev.reposts_count + 1 }));
+    try {
+      const res = await fetch(`/api/posts/${post.id}/repost`, { method: 'POST' });
+      if (!res.ok) {
+        setPost(prev => ({ ...prev, reposted: !prev.reposted, reposts_count: prev.reposted ? Math.max(0, prev.reposts_count - 1) : prev.reposts_count + 1 }));
+        return;
+      }
+      const data = await res.json();
+      if (data && typeof data.reposted === 'boolean') {
+        setPost(prev => ({
+          ...prev,
+          reposted: !!data.reposted,
+          reposts_count: typeof data.reposts_count === 'number' ? data.reposts_count : prev.reposts_count
+        }));
+      }
+    } catch (err) {
+      setPost(prev => ({ ...prev, reposted: !prev.reposted, reposts_count: prev.reposted ? Math.max(0, prev.reposts_count - 1) : prev.reposts_count + 1 }));
+    }
   };
 
   const handlePostComment = async () => {
@@ -80,7 +130,8 @@ export default function PostDetailPage() {
       if (res.ok && data.comment) {
         setPost(prev => ({
           ...prev,
-          comments: [data.comment, ...(prev.comments || [])]
+          comments: [data.comment, ...(prev.comments || [])],
+          comments_count: typeof data.comments_count === 'number' ? data.comments_count : (prev.comments_count || 0) + 1
         }));
         setCommentText('');
       }
@@ -95,7 +146,7 @@ export default function PostDetailPage() {
     async function fetchPost() {
       if (!params.id) return;
       try {
-        const res = await fetch(`/api/posts/${params.id}`);
+        const res = await fetch(`/api/posts/${params.id}?t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to fetch signal');
         setPost(data.post);
@@ -227,7 +278,7 @@ export default function PostDetailPage() {
 
           <div className="mt-8 flex justify-between text-slate-500 max-w-xl mx-auto px-4">
             <button onClick={() => commentInputRef.current?.focus()} className="hover:text-cyan-400 transition-all transform hover:scale-110"><MessageCircle size={24} /></button>
-            <button className="hover:text-green-400 transition-all transform hover:scale-110"><Repeat2 size={24} /></button>
+            <button onClick={toggleRepost} className={`transition-all transform hover:scale-110 ${post.reposted ? 'text-green-400' : 'hover:text-green-400'}`}><Repeat2 size={24} /></button>
             <button onClick={toggleLike} className={`transition-all transform hover:scale-110 ${post.liked ? 'text-pink-500' : 'hover:text-pink-500'}`}><Heart size={24} fill={post.liked ? 'currentColor' : 'none'} /></button>
             <button onClick={toggleBookmark} className={`transition-all transform hover:scale-110 ${post.bookmarked ? 'text-cyan-400' : 'hover:text-cyan-400'}`}><Bookmark size={24} fill={post.bookmarked ? 'currentColor' : 'none'} /></button>
             <button onClick={handleShare} className="hover:text-white transition-all transform hover:scale-110"><Share size={24} /></button>

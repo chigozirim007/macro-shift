@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, ensureUser } from '@/lib/supabase';
 import { auth } from '@/auth';
 
 // GET /api/posts — fetch all posts with author + like/bookmark counts
@@ -14,12 +14,8 @@ export async function GET(request) {
     // Get current user's ID if logged in
     const session = await auth();
     let currentUserId = null;
-    if (session?.user?.email) {
-      const { data: user } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', session.user.email.toLowerCase())
-        .maybeSingle();
+    if (session) {
+      const user = await ensureUser(session);
       if (user) currentUserId = user.id;
     }
 
@@ -118,9 +114,11 @@ export async function GET(request) {
       comments: undefined,
     }));
 
+    // Responses include per-user engagement data; disable caching to ensure
+    // clients always receive the latest DB state after interactions.
     return NextResponse.json({ posts: normalized }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
+        'Cache-Control': 'no-store'
       },
     });
   } catch (error) {
@@ -144,12 +142,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Title, content, and category are required.' }, { status: 400 });
     }
 
-    // Get user ID from DB
-    const { data: user } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', session.user.email.toLowerCase())
-      .maybeSingle();
+    // Get user ID from DB, auto-creating if needed
+    const user = await ensureUser(session);
 
     if (!user) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });

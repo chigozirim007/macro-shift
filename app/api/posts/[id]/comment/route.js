@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, ensureUser } from '@/lib/supabase';
 import { auth } from '@/auth';
 
 export async function POST(request, { params }) {
@@ -17,12 +17,7 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: 'Comment content cannot be empty.' }, { status: 400 });
     }
 
-    // Get the user ID from the session email
-    const { data: user } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', session.user.email.toLowerCase())
-      .single();
+    const user = await ensureUser(session);
 
     if (!user) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });
@@ -47,7 +42,13 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: 'Failed to post comment.' }, { status: 500 });
     }
 
-    return NextResponse.json({ comment });
+    // Return the new comment and updated comments_count
+    const { count, error: countError } = await supabase.from('comments').select('id', { head: true, count: 'exact' }).eq('post_id', id);
+    if (countError) {
+      console.error('Comment count error:', countError);
+      return NextResponse.json({ error: 'Failed to refresh comment count.' }, { status: 500 });
+    }
+    return NextResponse.json({ comment, comments_count: count || 0 });
   } catch (error) {
     console.error('Comment route error:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });

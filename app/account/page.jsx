@@ -90,7 +90,29 @@ export default function AccountPage() {
     }));
 
     try {
-      await fetch(`/api/posts/${postId}/${endpoint}`, { method: 'POST' });
+      const res = await fetch(`/api/posts/${postId}/${endpoint}`, { method: 'POST' });
+      if (!res.ok) {
+        setPosts(prev => prev.map(p => {
+          if (p.id !== postId) return p;
+          const isActive = !p[activeField];
+          return {
+            ...p,
+            [activeField]: isActive,
+            [countField]: isActive ? p[countField] + 1 : Math.max(0, p[countField] - 1)
+          };
+        }));
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (data) {
+        setPosts(prev => prev.map(p => {
+          if (p.id !== postId) return p;
+          const updates = {};
+          if (typeof data[activeField] === 'boolean') updates[activeField] = data[activeField];
+          if (typeof data[countField] === 'number') updates[countField] = data[countField];
+          return { ...p, ...updates };
+        }));
+      }
     } catch {
       setPosts(prev => prev.map(p => {
         if (p.id !== postId) return p;
@@ -268,8 +290,7 @@ export default function AccountPage() {
                 </div>
               ) : (
                 filteredContent.map((post) => (
-                  <div key={post.id} className="bg-white/5 border border-white/10 rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-8 hover:bg-white/10 transition-all group cursor-pointer">
-                    <Link href={`/post/${post.id}`}>
+                  <div key={post.id} className="bg-white/5 border border-white/10 rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-8 hover:bg-white/10 transition-all group cursor-pointer" onClick={(e) => { if (e.defaultPrevented) return; window.location.href = `/post/${post.id}`; }}>
                       <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
                         <img 
                             src={post.users?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=06b6d4&color=fff`} 
@@ -326,14 +347,14 @@ export default function AccountPage() {
                             <span className="text-[10px] md:text-xs font-black italic">{post.comments_count || 0}</span>
                           </div>
                           <div 
-                            onClick={(e) => { e.preventDefault(); handleRepost(post.id); }}
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRepost(post.id); }}
                             className={`flex items-center gap-1.5 md:gap-3 transition-colors ${post.reposted ? 'text-green-400' : 'hover:text-green-400'}`}
                           >
                             <Repeat2 size={16} />
                             <span className="text-[10px] md:text-xs font-black italic">{post.reposts_count || 0}</span>
                           </div>
                           <div 
-                            onClick={(e) => { e.preventDefault(); handleLike(post.id); }}
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleLike(post.id); }}
                             className={`flex items-center gap-1.5 md:gap-3 transition-colors ${post.liked ? 'text-pink-500' : 'hover:text-pink-500'}`}
                           >
                             <Heart size={16} fill={post.liked ? 'currentColor' : 'none'} />
@@ -345,9 +366,8 @@ export default function AccountPage() {
                           </div>
                         </div>
                       </div>
-                    </Link>
-                  </div>
-                ))
+                    </div>
+                  ))
               )}
             </div>
           </div>
