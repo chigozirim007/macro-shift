@@ -9,6 +9,8 @@ export async function GET(request) {
     const category = searchParams.get('category');
     const interests = searchParams.get('interests')?.split(',');
     const userId = searchParams.get('user_id');
+    const bookmarkedBy = searchParams.get('bookmarked_by');
+    const repostedBy = searchParams.get('reposted_by');
     const searchTerm = searchParams.get('query');
 
     // Get current user's ID if logged in
@@ -17,6 +19,30 @@ export async function GET(request) {
     if (session) {
       const user = await ensureUser(session);
       if (user) currentUserId = user.id;
+    }
+
+    let engagementPostIds = null;
+    if (bookmarkedBy || repostedBy) {
+      const table = bookmarkedBy ? 'bookmarks' : 'reposts';
+      const engagementUserId = bookmarkedBy || repostedBy;
+      const { data: engagementRows, error: engagementError } = await supabase
+        .from(table)
+        .select('post_id')
+        .eq('user_id', engagementUserId);
+
+      if (engagementError) {
+        console.error('Engagement posts fetch error:', engagementError);
+        return NextResponse.json({ error: 'Failed to fetch engagement posts.' }, { status: 500 });
+      }
+
+      engagementPostIds = [...new Set((engagementRows || []).map(row => row.post_id).filter(Boolean))];
+      if (engagementPostIds.length === 0) {
+        return NextResponse.json({ posts: [] }, {
+          headers: {
+            'Cache-Control': 'no-store'
+          },
+        });
+      }
     }
 
     let query = supabase
@@ -64,6 +90,10 @@ export async function GET(request) {
 
     if (userId) {
       query = query.eq('user_id', userId);
+    }
+
+    if (engagementPostIds) {
+      query = query.in('id', engagementPostIds);
     }
 
     if (searchTerm) {
